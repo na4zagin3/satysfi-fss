@@ -1,0 +1,78 @@
+@import: fss
+
+module Fonts : sig
+
+  val default-font-set : font-set
+
+end = struct
+
+  let font-default-Jpan script font =
+    (| script = script ;
+      font = (|
+        font-name = font ;
+        ratio = 0.88 ;
+        rising = 0.0 ;
+      |) ;
+    |)
+
+  let font-default-Latn script font =
+    (| script = script ;
+      font = (|
+        font-name = font ;
+        ratio = 1.0 ;
+        rising = 0.0 ;
+      |) ;
+    |)
+
+  let default-font-combination-r : font-combination =
+  [ font-default-Jpan HanIdeographic `ipaexm` ;
+    font-default-Jpan Kana `ipaexm` ;
+    font-default-Latn Latin `Junicode` ;
+    font-default-Latn OtherScript `Junicode` ;
+  ]
+  let default-font-cond-r : font-selection-cond =
+    Fss.font-selection-cond-of-font-axes
+      (| width = 100 ;
+        weight = 80. ;
+        slant = 0 ;
+        style = `Regular` ;
+      |)
+
+  let default-font-combination-i : font-combination =
+  [ font-default-Jpan HanIdeographic `ipaexg` ;
+    font-default-Jpan Kana `ipaexg` ;
+    font-default-Latn Latin `Junicode-it` ;
+    font-default-Latn OtherScript `Junicode-it` ;
+  ]
+  let default-font-cond-i : font-selection-cond =
+    Fss.font-selection-cond-of-font-axes
+      (| width = 100 ;
+        weight = 80. ;
+        slant = 100 ;
+        style = `Italic` ;
+      |)
+
+  let default-font-combination-b : font-combination =
+  [ font-default-Jpan HanIdeographic `ipaexg` ;
+    font-default-Jpan Kana `ipaexg` ;
+    font-default-Latn Latin `Junicode-b` ;
+    font-default-Latn OtherScript `Junicode-b` ;
+  ]
+  let default-font-cond-b : font-selection-cond =
+    Fss.font-selection-cond-of-font-axes
+      (| width = 100 ;
+        weight = 180. ;
+        slant = 0 ;
+        style = `Bold` ;
+      |)
+
+  let default-font-set : font-set =
+    (| default-font = default-font-combination-r ;
+      conditional-fonts =
+        [ (default-font-cond-r, default-font-combination-r) ;
+          (default-font-cond-i, default-font-combination-i) ;
+          (default-font-cond-b, default-font-combination-b) ;
+        ];
+    |)
+
+end

@@ -1,0 +1,146 @@
+@require: base/float
+
+type 'a condition = Exact of 'a
+
+type font =
+  (| font-name : string ;
+     ratio : float ;
+     rising : float ;
+  |)
+
+type font-combination-pair =
+  (| script : script ;
+     font : font;
+  |)
+
+type font-combination =
+  font-combination-pair list
+
+type font-axes =
+  (| width : int ;
+    weight : float ;
+    slant : int;
+    style : string; % support lang-independent styles
+%    charset : int;
+%    lang : string;
+  |)
+
+type font-selection-cond =
+  (| width : int ;
+    weight : float ;
+    slant : int;
+    style : string; % support lang-independent styles
+%    charset : int;
+%    lang : string;
+  |)
+
+type font-set =
+  (| default-font : font-combination ;
+    conditional-fonts : (font-selection-cond * font-combination) list ;
+  |)
+
+module Fss : sig
+
+  direct \text-font-combination : [font-combination; inline-text] inline-cmd
+  direct \text-font : [font-set; font-axes; inline-text] inline-cmd
+
+  val find-optimal-font : font-set -> font-axes -> font-combination
+  val font-selection-cond-of-font-axes : font-axes -> font-selection-cond
+
+end = struct
+
+  let font-selection-cond-of-font-axes fa =
+    (| width = fa#width ;
+      weight = fa#weight ;
+      slant = fa#slant ;
+      style = fa#style ;
+    |)
+
+  let-rec font-combination-apply font-comb ctx =
+    match font-comb with
+    | [] -> ctx
+    | (font-pair :: font-comb) ->
+      let font-triple =
+        (font-pair#font#font-name, font-pair#font#ratio, font-pair#font#rising)
+      in
+      set-font font-pair#script font-triple (font-combination-apply font-comb ctx)
+
+  let font-selection-score-style cond target =
+    if string-same cond target
+    then 0.
+    else 1.
+
+  let font-selection-score-float coeff cond target =
+    let sq-coeff = coeff *. coeff in
+    let diff = (cond -. target) in
+    diff *. diff /. sq-coeff
+
+  let font-selection-score-int coeff cond target =
+    font-selection-score-float coeff (float cond) (float target)
+
+  let font-selection-score cond target =
+    let score-width = font-selection-score-int 100. cond#width target#width in
+    let score-weight = font-selection-score-float 100. cond#weight target#weight in
+    let score-slant = font-selection-score-int 100. cond#slant target#slant in
+    let score-style = 10. *. font-selection-score-style cond#style target#style in
+    score-width +. score-weight +. score-slant +. score-style
+
+  let string-of-font-combination font-comb =
+    let-rec sub acc font-comb =
+      match font-comb with
+      | [] -> `[` ^ acc ^ `]`
+      | (f :: font-comb) ->
+        sub (f#font#font-name ^ `;` ^ acc) font-comb
+    in
+    sub ` ` font-comb
+
+  let debug-font-combination context font-comb =
+    display-message (`fss: `# ^ context ^ `: `# ^ string-of-font-combination font-comb)
+
+  let find-lowest score-f default-score default elems =
+    let-rec sub cur-score cur elems =
+      match elems with
+      | [] ->
+        let () = debug-font-combination `find-lowest: result` cur in
+        (cur-score, cur)
+      | ((cond, elem)::elems) ->
+        let score = score-f cond in
+        let () = debug-font-combination (`find-lowest: target (` ^ show-float score ^ `)`) elem in
+        if Float.(cur-score < score)
+        then sub cur-score cur elems
+        else sub score elem elems
+    in
+    let () = debug-font-combination (`find-lowest: default (` ^ show-float default-score ^ `)`) default in
+    sub default-score default elems
+
+  let find-optimal-font font-set target =
+    let default-score = 1000. in
+    let (score, font) =
+      find-lowest
+        (fun cond -> font-selection-score cond target)
+        default-score
+        font-set#default-font
+        font-set#conditional-fonts
+    in
+    % TODO Warn when there are multiple matched fonts
+    if Float.is-zero score
+    then
+      let () = debug-font-combination `find-optimal-font: matched` font in
+      font
+    else
+      let () = debug-font-combination `find-optimal-font: best guess` font in
+      font
+
+  let-inline ctx \text-font-combination font-comb it =
+    let ctx =
+      ctx |> font-combination-apply font-comb
+    in
+    read-inline ctx it
+
+  let-inline ctx \text-font font-set font-axes it =
+    let font-comb = find-optimal-font font-set font-axes in
+    let ctx =
+      ctx |> font-combination-apply font-comb
+    in
+    read-inline ctx it
+end

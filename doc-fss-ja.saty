@@ -1,0 +1,34 @@
+@require: stdjabook
+@require: fss/fss
+@require: fss/fonts
+
+let font-axes-bold =
+  (| width = 100 ;
+    weight = 180. ;
+    slant = 0 ;
+    style = `Bold` ;
+  |)
+in
+
+let bold-font =
+  Fss.find-optimal-font Fonts.default-font-set
+    font-axes-bold
+in
+
+document (|
+  title = {};
+  author = {};
+  show-title = false;
+  show-toc = false;
+|) '<
+  +p {
+    regular
+    \Fss.text-font-combination(bold-font){bold}
+    regular again
+  }
+  +p {
+    regular
+    \Fss.text-font(Fonts.default-font-set)(font-axes-bold){bold}
+    regular again
+  }
+>

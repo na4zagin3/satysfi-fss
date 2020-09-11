@@ -1,0 +1,17 @@
+(version "0.0.2")
+(library
+  (name "fss")
+  (version "0.1")
+  (sources
+    ((packageDir "src")))
+  (opam "satysfi-fss.opam")
+  (dependencies ((base ()))))
+(libraryDoc
+  (name "fss-doc")
+  (version "0.1")
+  (build
+    ((satysfi "doc-fss-ja.saty" "-o" "doc-fss-ja.pdf")))
+  (sources
+    ((doc "doc-fss-ja.pdf" "./doc-fss-ja.pdf")))
+  (opam "satysfi-fss-doc.opam")
+  (dependencies ((fss ()))))

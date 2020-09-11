@@ -1,0 +1,33 @@
+opam-version: "2.0"
+name: "satysfi-fss-doc"
+version: "1.0"
+synopsis: "Document: Font selection scheme"
+description: """
+Brilliant description comes here.
+"""
+maintainer: "SAKAMOTO Noriaki <mrty.ityt.pt@gmail.com>"
+authors: "SAKAMOTO Noriaki <mrty.ityt.pt@gmail.com>"
+license: "LGPL-3.0-or-later" # Choose what you want
+#homepage: "<product home page>"
+#bug-reports: "<product issue tracker>"
+#dev-repo: "<repo url>"
+depends: [
+  "satysfi" {>= "0.0.5" & < "0.0.6"}
+  "satyrographos" {>= "0.0.2.6" & < "0.0.3"}
+  "satysfi-dist"
+
+  # You may want to include the corresponding library
+  "satysfi-fss" {= "%{version}%"}
+]
+build: [
+  ["satyrographos" "opam" "build"
+   "--name" "fss-doc"
+   "--prefix" "%{prefix}%"
+   "--script" "%{build}%/Satyristes"]
+]
+install: [
+  ["satyrographos" "opam" "install"
+   "--name" "fss-doc"
+   "--prefix" "%{prefix}%"
+   "--script" "%{build}%/Satyristes"]
+]
