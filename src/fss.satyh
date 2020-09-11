@@ -1,4 +1,5 @@
 @require: base/float
+@import: style
 
 type 'a condition = Exact of 'a
 
@@ -20,7 +21,7 @@ type font-axes =
   (| width : int ;
     weight : float ;
     slant : int;
-    style : string; % support lang-independent styles
+    style : font-style;
 %    charset : int;
 %    lang : string;
   |)
@@ -29,7 +30,7 @@ type font-selection-cond =
   (| width : int ;
     weight : float ;
     slant : int;
-    style : string; % support lang-independent styles
+    style : font-style; % support lang-independent styles
 %    charset : int;
 %    lang : string;
   |)
@@ -44,10 +45,20 @@ module Fss : sig
   direct \text-font-combination : [font-combination; inline-text] inline-cmd
   direct \text-font : [font-set; font-axes; inline-text] inline-cmd
 
+  % val set-font-commbination : font-combination -> context -> context
   val find-optimal-font : font-set -> font-axes -> font-combination
   val font-selection-cond-of-font-axes : font-axes -> font-selection-cond
 
+  val font-axes-to-string : font-axes -> string
+
 end = struct
+
+  let font-axes-to-string fa =
+    `{ width:` ^ arabic fa#width
+    ^ `, weight:` ^ show-float fa#weight
+    ^ `, slant:` ^ arabic fa#slant
+    ^ `, style:` ^ Style.to-string fa#style
+    ^ `}`
 
   let font-selection-cond-of-font-axes fa =
     (| width = fa#width ;
@@ -56,19 +67,32 @@ end = struct
       style = fa#style ;
     |)
 
-  let-rec font-combination-apply font-comb ctx =
+  let-rec set-font-commbination font-comb ctx =
     match font-comb with
     | [] -> ctx
     | (font-pair :: font-comb) ->
       let font-triple =
         (font-pair#font#font-name, font-pair#font#ratio, font-pair#font#rising)
       in
-      set-font font-pair#script font-triple (font-combination-apply font-comb ctx)
+      set-font font-pair#script font-triple (set-font-commbination font-comb ctx)
 
   let font-selection-score-style cond target =
-    if string-same cond target
-    then 0.
-    else 1.
+    let width-score =
+      if string-same cond#width target#width
+      then 0.
+      else 0.1
+    in
+    let weight-score =
+      if string-same cond#weight target#weight
+      then 0.
+      else 0.1
+    in
+    let style-score =
+      if string-same cond#style target#style
+      then 0.
+      else 1.
+    in
+    width-score +. weight-score +. style-score
 
   let font-selection-score-float coeff cond target =
     let sq-coeff = coeff *. coeff in
@@ -82,7 +106,7 @@ end = struct
     let score-width = font-selection-score-int 100. cond#width target#width in
     let score-weight = font-selection-score-float 100. cond#weight target#weight in
     let score-slant = font-selection-score-int 100. cond#slant target#slant in
-    let score-style = 10. *. font-selection-score-style cond#style target#style in
+    let score-style = font-selection-score-style cond#style target#style in
     score-width +. score-weight +. score-slant +. score-style
 
   let string-of-font-combination font-comb =
@@ -95,7 +119,7 @@ end = struct
     sub ` ` font-comb
 
   let debug-font-combination context font-comb =
-    display-message (`fss: `# ^ context ^ `: `# ^ string-of-font-combination font-comb)
+    display-message (`fss/fss: `# ^ context ^ `: `# ^ string-of-font-combination font-comb)
 
   let find-lowest score-f default-score default elems =
     let-rec sub cur-score cur elems =
@@ -128,19 +152,19 @@ end = struct
       let () = debug-font-combination `find-optimal-font: matched` font in
       font
     else
-      let () = debug-font-combination `find-optimal-font: best guess` font in
+      let () = debug-font-combination (`find-optimal-font: best guess (score=` ^ show-float score ^ `)`) font in
       font
 
   let-inline ctx \text-font-combination font-comb it =
     let ctx =
-      ctx |> font-combination-apply font-comb
+      ctx |> set-font-commbination font-comb
     in
     read-inline ctx it
 
   let-inline ctx \text-font font-set font-axes it =
     let font-comb = find-optimal-font font-set font-axes in
     let ctx =
-      ctx |> font-combination-apply font-comb
+      ctx |> set-font-commbination font-comb
     in
     read-inline ctx it
 end

@@ -1,12 +1,14 @@
 @require: stdjabook
 @require: fss/fss
 @require: fss/fonts
+@require: fss/style
+@require: fss/mutable
 
 let font-axes-bold =
   (| width = 100 ;
     weight = 180. ;
     slant = 0 ;
-    style = `Bold` ;
+    style = Style.parse `Bold` ;
   |)
 in
 
@@ -30,5 +32,24 @@ document (|
     regular
     \Fss.text-font(Fonts.default-font-set)(font-axes-bold){bold}
     regular again
+  }
+  +p {
+    regular,
+    \font([bold]){
+      bold,
+      \font([italic]){
+        bold italic,
+        \font([medium]){
+          italic,
+          \font([upright]){
+            regular,
+          }
+          italic,
+        }
+        bold italic,
+      }
+      bold
+    }
+    regular
   }
 >

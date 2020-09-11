@@ -1,7 +1,9 @@
 @import: fss
+@import: style
 
 module Fonts : sig
 
+  val default-font-axes : font-axes
   val default-font-set : font-set
 
 end = struct
@@ -30,13 +32,15 @@ end = struct
     font-default-Latn Latin `Junicode` ;
     font-default-Latn OtherScript `Junicode` ;
   ]
+  let default-font-axes : font-axes =
+    (| width = 100 ;
+      weight = 80. ;
+      slant = 0 ;
+      style = Style.parse `Regular` ;
+    |)
   let default-font-cond-r : font-selection-cond =
     Fss.font-selection-cond-of-font-axes
-      (| width = 100 ;
-        weight = 80. ;
-        slant = 0 ;
-        style = `Regular` ;
-      |)
+      default-font-axes
 
   let default-font-combination-i : font-combination =
   [ font-default-Jpan HanIdeographic `ipaexg` ;
@@ -49,7 +53,7 @@ end = struct
       (| width = 100 ;
         weight = 80. ;
         slant = 100 ;
-        style = `Italic` ;
+        style = Style.parse `Italic` ;
       |)
 
   let default-font-combination-b : font-combination =
@@ -63,7 +67,7 @@ end = struct
       (| width = 100 ;
         weight = 180. ;
         slant = 0 ;
-        style = `Bold` ;
+        style = Style.parse `Bold` ;
       |)
 
   let default-font-set : font-set =
