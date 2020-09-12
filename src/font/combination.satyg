@@ -1,0 +1,26 @@
+@import: font
+
+type font-combination-pair =
+  (| script : script ;
+     font : font;
+  |)
+
+type font-combination =
+  font-combination-pair list
+
+module FontCombination : sig
+
+  val to-string : font-combination -> string
+
+end = struct
+
+  let to-string font-comb =
+    let-rec sub acc font-comb =
+      match font-comb with
+      | [] -> `[` ^ acc ^ `]`
+      | (f :: font-comb) ->
+        sub (f#font#font-name ^ `;` ^ acc) font-comb
+    in
+    sub ` ` font-comb
+
+end

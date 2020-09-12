@@ -1,0 +1,7 @@
+@import: combination
+@import: selection-cond
+
+type font-set =
+  (| default-font : font-combination ;
+    conditional-fonts : (font-selection-cond * font-combination) list ;
+  |)

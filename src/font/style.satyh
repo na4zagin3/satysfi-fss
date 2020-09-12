@@ -1,0 +1,19 @@
+% https://glyphsapp.com/tutorials/naming
+type font-style = (|
+  width : string;
+  weight : string;
+  style : string;
+|)
+
+module FontStyle : sig
+  val parse : string -> font-style
+  val to-string : font-style -> string
+end = struct
+  let parse s = match s with
+    | `Regular` -> (| width = ` `; weight = ` `; style = ` ` |)
+    | `Italic` -> (| width = ` `; weight = ` `; style = `Italic` |)
+    | `Bold` -> (| width = ` `; weight = `Bold`; style = ` ` |)
+    | `Bold Italic` -> (| width = ` `; weight = `Bold`; style = `Italic` |)
+
+  let to-string s = `(` ^ s#width ^ `-` ^ s#weight ^ `-` ^ s#style ^ `)`
+end

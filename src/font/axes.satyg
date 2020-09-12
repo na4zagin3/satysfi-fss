@@ -1,0 +1,25 @@
+@import: style
+
+type font-axes =
+  (| width : int ;
+    weight : float ;
+    slant : int;
+    style : font-style;
+%    charset : int;
+%    lang : string;
+  |)
+
+module FontAxes : sig
+
+  val to-string : font-axes -> string
+
+end = struct
+
+  let to-string fa =
+    `{ width:` ^ arabic fa#width
+    ^ `, weight:` ^ show-float fa#weight
+    ^ `, slant:` ^ arabic fa#slant
+    ^ `, style:` ^ FontStyle.to-string fa#style
+    ^ `}`
+
+end

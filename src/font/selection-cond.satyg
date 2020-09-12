@@ -1,0 +1,26 @@
+@import: axes
+@import: style
+
+type font-selection-cond =
+  (| width : int ;
+    weight : float ;
+    slant : int;
+    style : font-style; % support lang-independent styles
+%    charset : int;
+%    lang : string;
+  |)
+
+module FontSelectionCond : sig
+
+  val of-font-axes : font-axes -> font-selection-cond
+
+end = struct
+
+  let of-font-axes fa =
+    (| width = fa#width ;
+      weight = fa#weight ;
+      slant = fa#slant ;
+      style = fa#style ;
+    |)
+
+end

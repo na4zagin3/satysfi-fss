@@ -1,5 +1,5 @@
 @import: fss
-@import: style
+@import: font/style
 
 module Fonts : sig
 
@@ -36,7 +36,7 @@ end = struct
     (| width = 100 ;
       weight = 80. ;
       slant = 0 ;
-      style = Style.parse `Regular` ;
+      style = FontStyle.parse `Regular` ;
     |)
   let default-font-cond-r : font-selection-cond =
     Fss.font-selection-cond-of-font-axes
@@ -53,7 +53,7 @@ end = struct
       (| width = 100 ;
         weight = 80. ;
         slant = 100 ;
-        style = Style.parse `Italic` ;
+        style = FontStyle.parse `Italic` ;
       |)
 
   let default-font-combination-b : font-combination =
@@ -67,7 +67,7 @@ end = struct
       (| width = 100 ;
         weight = 180. ;
         slant = 0 ;
-        style = Style.parse `Bold` ;
+        style = FontStyle.parse `Bold` ;
       |)
 
   let default-font-set : font-set =

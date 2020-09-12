@@ -1,14 +1,18 @@
 @require: stdjabook
 @require: fss/fss
 @require: fss/fonts
+@require: fss/font/style
 @require: fss/style
 @require: fss/mutable
+
+let () = Fss.set-debug-level 100
+let () = FssMutableInternal.set-debug-level 100
 
 let font-axes-bold =
   (| width = 100 ;
     weight = 180. ;
     slant = 0 ;
-    style = Style.parse `Bold` ;
+    style = FontStyle.parse `Bold` ;
   |)
 in
 
@@ -41,7 +45,7 @@ document (|
         bold italic,
         \font([medium]){
           italic,
-          \font([upright]){
+          \font[upright]{
             regular,
           }
           italic,
