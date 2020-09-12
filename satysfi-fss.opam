@@ -1,16 +1,15 @@
 opam-version: "2.0"
-#name: "satysfi-great-library"
-version: "1.0"
+version: "0.0.1"
 synopsis: "Font selection scheme"
 description: """
-Brilliant description comes here.
+Document: Font selection scheme for SATySFi
 """
 maintainer: "SAKAMOTO Noriaki <mrty.ityt.pt@gmail.com>"
 authors: "SAKAMOTO Noriaki <mrty.ityt.pt@gmail.com>"
-license: "LGPL-3.0-or-later" # Choose what you want
-#homepage: "<product home page>"
-#bug-reports: "<product issue tracker>"
-#dev-repo: "<repo url>"
+license: "LGPL-3.0-or-later"
+homepage: "https://github.com/na4zagin3/satysfi-fss"
+dev-repo: "git+https://github.com/na4zagin3/satysfi-fss.git"
+bug-reports: "https://github.com/na4zagin3/satysfi-fss/issues"
 depends: [
   "satysfi" {>= "0.0.5" & < "0.0.6"}
   "satyrographos" {>= "0.0.2.6" & < "0.0.3"}
