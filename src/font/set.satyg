@@ -5,3 +5,13 @@ type font-set =
   (| default-font : font-combination ;
     conditional-fonts : (font-selection-cond * font-combination) list ;
   |)
+
+module FontSet : sig
+
+  val to-string : font-set -> string
+
+end = struct
+
+  let to-string fs = `<font-set>`
+
+end

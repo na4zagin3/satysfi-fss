@@ -1,9 +1,12 @@
+@require: base/option-ext
+@import: fss
 @import: font/axes
+@import: font/set
 @import: fonts
 
 module FssMutableInternal : sig
   direct \font-set : [font-set; inline-text] inline-cmd
-  direct \font : [(font-axes -> font-axes) list; inline-text] inline-cmd
+  direct \font-style : [(font-axes -> font-axes) list; inline-text] inline-cmd
 
   val set-debug-level : int -> unit
 end = struct
@@ -23,27 +26,41 @@ end = struct
     let fa = f !current-font-axes in
     current-font-axes <- fa
 
-  let-inline ctx \font-set fs it =
+  let with-font-set ?:context ctx fs f =
+    let context = Option.unwrap-or `with-font-set` context in
     let previous-fs = !current-font-set in
     let () = current-font-set <- fs in
     let fa = !current-font-axes in
-    let bt = read-inline ctx {\Fss.text-font(fs)(fa)(it);} in
+    let () = debug-message 1 context (FontSet.to-string previous-fs ^ #` -> `# ^ FontSet.to-string fs) in
+    let result = f fs fa ctx in
     let () = current-font-set <- previous-fs in
-    bt
+    result
 
-  let-inline ctx \font f it =
+  let with-style ?:context ctx ss f =
+    let context = Option.unwrap-or `with-style` context in
     let previous-fa = !current-font-axes in
-    let fa = List.fold-left (fun fa f -> f fa) previous-fa f in
-    let () = debug-message 1 `\font` (FontAxes.to-string previous-fa ^ #` -> `# ^ FontAxes.to-string fa) in
+    let fa = List.fold-left (fun fa s -> s fa) previous-fa ss in
+    let () = debug-message 1 context (FontAxes.to-string previous-fa ^ #` -> `# ^ FontAxes.to-string fa) in
     let () = current-font-axes <- fa in
     let fs = !current-font-set in
-    let bt = read-inline ctx {\Fss.text-font(fs)(fa)(it);} in
+    let result = f fs fa ctx in
     let () = current-font-axes <- previous-fa in
-    bt
+    result
+
+  let-inline ctx \font-set fs it =
+    with-font-set ?:`\font-set` ctx fs (fun fs fa ctx ->
+      read-inline ctx {\Fss.text-font(fs)(fa)(it);}
+    )
+
+  let-inline ctx \font-style ss it =
+    with-style ?:`\font-style` ctx ss (fun fs fa ctx ->
+      read-inline ctx {\Fss.text-font(fs)(fa)(it);}
+    )
+
 end
 
 let-inline ctx \font-set fs it =
   read-inline ctx {\FssMutableInternal.font-set(fs)(it);}
 
-let-inline ctx \font f it =
-  read-inline ctx {\FssMutableInternal.font(f)(it);}
+let-inline ctx \font-style ss it =
+  read-inline ctx {\FssMutableInternal.font-style(ss)(it);}

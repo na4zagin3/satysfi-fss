@@ -15,7 +15,6 @@ module Fss : sig
 
   % val set-font-commbination : font-combination -> context -> context
   val find-optimal-font : font-set -> font-axes -> font-combination
-  val font-selection-cond-of-font-axes : font-axes -> font-selection-cond
 
   val set-debug-level : int -> unit
 
@@ -23,9 +22,6 @@ end = struct
   let-mutable current-debug-level <- 0
   let set-debug-level level =
     current-debug-level <- level
-
-  let font-selection-cond-of-font-axes =
-    FontSelectionCond.of-font-axes
 
   let-rec set-font-commbination font-comb ctx =
     match font-comb with

@@ -39,13 +39,13 @@ document (|
   }
   +p {
     regular,
-    \font([bold]){
+    \font-style[bold]{
       bold,
-      \font([italic]){
+      \font-style[italic]{
         bold italic,
-        \font([medium]){
+        \font-style[medium]{
           italic,
-          \font[upright]{
+          \font-style[upright]{
             regular,
           }
           italic,

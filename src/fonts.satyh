@@ -1,5 +1,5 @@
-@import: fss
-@import: font/style
+@import: font/selection-cond
+@import: font/axes
 
 module Fonts : sig
 
@@ -39,7 +39,7 @@ end = struct
       style = FontStyle.parse `Regular` ;
     |)
   let default-font-cond-r : font-selection-cond =
-    Fss.font-selection-cond-of-font-axes
+    FontSelectionCond.of-font-axes
       default-font-axes
 
   let default-font-combination-i : font-combination =
@@ -49,7 +49,7 @@ end = struct
     font-default-Latn OtherScript `Junicode-it` ;
   ]
   let default-font-cond-i : font-selection-cond =
-    Fss.font-selection-cond-of-font-axes
+    FontSelectionCond.of-font-axes
       (| width = 100 ;
         weight = 80. ;
         slant = 100 ;
@@ -63,7 +63,7 @@ end = struct
     font-default-Latn OtherScript `Junicode-b` ;
   ]
   let default-font-cond-b : font-selection-cond =
-    Fss.font-selection-cond-of-font-axes
+    FontSelectionCond.of-font-axes
       (| width = 100 ;
         weight = 180. ;
         slant = 0 ;
