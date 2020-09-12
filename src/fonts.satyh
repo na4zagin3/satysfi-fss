@@ -29,8 +29,8 @@ end = struct
   let default-font-combination-r : font-combination =
   [ font-default-Jpan HanIdeographic `ipaexm` ;
     font-default-Jpan Kana `ipaexm` ;
-    font-default-Latn Latin `Junicode` ;
-    font-default-Latn OtherScript `Junicode` ;
+    font-default-Latn Latin `fonts-junicode:Junicode` ;
+    font-default-Latn OtherScript `fonts-junicode:Junicode` ;
   ]
   let default-font-axes : font-axes =
     (| width = 100 ;
@@ -45,8 +45,8 @@ end = struct
   let default-font-combination-i : font-combination =
   [ font-default-Jpan HanIdeographic `ipaexg` ;
     font-default-Jpan Kana `ipaexg` ;
-    font-default-Latn Latin `Junicode-it` ;
-    font-default-Latn OtherScript `Junicode-it` ;
+    font-default-Latn Latin `fonts-junicode:Junicode-Italic` ;
+    font-default-Latn OtherScript `fonts-junicode:Junicode-Italic` ;
   ]
   let default-font-cond-i : font-selection-cond =
     FontSelectionCond.of-font-axes
@@ -59,8 +59,8 @@ end = struct
   let default-font-combination-b : font-combination =
   [ font-default-Jpan HanIdeographic `ipaexg` ;
     font-default-Jpan Kana `ipaexg` ;
-    font-default-Latn Latin `Junicode-b` ;
-    font-default-Latn OtherScript `Junicode-b` ;
+    font-default-Latn Latin `fonts-junicode:Junicode-Bold` ;
+    font-default-Latn OtherScript `fonts-junicode:Junicode-Bold` ;
   ]
   let default-font-cond-b : font-selection-cond =
     FontSelectionCond.of-font-axes
@@ -70,12 +70,27 @@ end = struct
         style = FontStyle.parse `Bold` ;
       |)
 
+  let default-font-combination-bi : font-combination =
+  [ font-default-Jpan HanIdeographic `ipaexg` ;
+    font-default-Jpan Kana `ipaexg` ;
+    font-default-Latn Latin `fonts-junicode:Junicode-BoldItalic` ;
+    font-default-Latn OtherScript `fonts-junicode:Junicode-BoldItalic` ;
+  ]
+  let default-font-cond-bi : font-selection-cond =
+    FontSelectionCond.of-font-axes
+      (| width = 100 ;
+        weight = 180. ;
+        slant = 100 ;
+        style = FontStyle.parse `Bold Italic` ;
+      |)
+
   let default-font-set : font-set =
     (| default-font = default-font-combination-r ;
       conditional-fonts =
         [ (default-font-cond-r, default-font-combination-r) ;
           (default-font-cond-i, default-font-combination-i) ;
           (default-font-cond-b, default-font-combination-b) ;
+          (default-font-cond-bi, default-font-combination-bi) ;
         ];
     |)
 

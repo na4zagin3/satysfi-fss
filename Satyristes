@@ -5,7 +5,8 @@
   (sources
     ((packageDir "src")))
   (opam "satysfi-fss.opam")
-  (dependencies ((base ()))))
+  (dependencies ((base ())
+                 (fonts-junicode ()))))
 (libraryDoc
   (name "fss-doc")
   (version "0.1")
