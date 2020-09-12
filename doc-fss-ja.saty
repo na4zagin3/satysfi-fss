@@ -1,58 +1,300 @@
 @require: stdjabook
+@require: code
+@require: itemize
 @require: fss/fss
 @require: fss/fonts
-@require: fss/font/style
-@require: fss/font/selection
 @require: fss/style
 
 let () = Fss.set-debug-level 100
 
-let font-axes-bold =
-  (| width = 100 ;
-    weight = 180. ;
-    slant = 0 ;
-    style = FontStyle.parse `Bold` ;
-  |)
-in
+let-block ctx +frame content =
+  let pads = (10pt, 10pt, 10pt, 10pt) in
+  let decoset = VDecoSet.simple-frame-stroke 1pt (Color.gray 0.75) in
+    block-frame-breakable ctx pads decoset (fun ctx -> read-block ctx content)
 
-let bold-font =
-  FontSelection.find-optimal-font Fonts.default-font-set
-    font-axes-bold
+let-block ctx +display-boxes content code =
+  read-block (ctx |> set-paragraph-margin 12pt 0pt) '<+frame(content);>
+    +++ read-block (ctx |> set-paragraph-margin 0pt 12pt) '<+code(code);>
+
 in
 
 document (|
-  title = {};
-  author = {};
-  show-title = false;
+  title = {satysfi-fss};
+  author = {\code(`@na4zagin3`);};
+  show-title = true;
   show-toc = false;
 |) '<
   +p {
-    regular
-    \Fss.text-font-combination(bold-font){bold}
-    regular again
+    \font-style[bold]{警告}
+    まだ実験段階のパッケージであり、APIが大きく変更されるおそれがあります。
   }
-  +p {
-    regular
-    \Fss.text-font(Fonts.default-font-set)(font-axes-bold){bold}
-    regular again
-  }
-  +p {
-    regular,
-    \font-style[bold]{
-      bold,
-      \font-style[italic]{
-        bold italic,
-        \font-style[medium]{
-          italic,
-          \font-style[upright]{
-            regular,
-          }
-          italic,
-        }
-        bold italic,
-      }
-      bold
+  +section{忙しい人の為の概要} <
+    +p {
+      まず、\code(`fss/fss`);パッケージと\code(`fss/style`);パッケージをインポートすること。
     }
-    regular
-  }
+    +code (`
+      @require: fss/fss
+      @require: fss/style
+    `);
+    +p {
+      \code(`\font-style[スタイル; スタイル; ...]{インラインテキスト}`);
+      や
+      \code(`+font-style[スタイル; スタイル; ...]<ブロックテキスト>`);
+      で適用するスタイルを切り替えることができる。
+    }
+    +frame <
+      +p {
+        regular,
+        \font-style[bold]{
+          bold,
+        }
+        \font-style[bold; italic]{
+          bold italic,
+        }
+        regular
+      }
+    >
+    +code(`
+      +p {
+        regular,
+        \font-style[bold]{
+          bold,
+        }
+        \font-style[bold; italic]{
+          bold italic,
+        }
+        regular
+      }
+    `);
+    +p {
+      スタイル指定は入れ子になる。
+    }
+    +frame <
+      +p {
+        regular,
+        \font-style[bold]{
+          bold,
+          \font-style[italic]{
+            bold italic,
+            \font-style[medium]{
+              italic,
+              \font-style[upright]{
+                regular,
+              }
+              italic,
+            }
+            bold italic,
+          }
+          bold
+        }
+        regular
+      }
+    >
+    +code(`
+      +p { % Medium Upright
+        regular,
+        \font-style[bold]{ % Bold Upright
+          bold,
+          \font-style[italic]{ % Bold Italic
+            bold italic,
+            \font-style[medium]{ % Medium Italic
+              italic,
+              \font-style[upright]{ % Medium Upright
+                regular,
+              }
+              italic,
+            }
+            bold italic,
+          }
+          bold
+        }
+        regular
+      }
+    `);
+    +p {
+      スタイルは複数指定可能
+      や
+      \code(`+font-style[スタイル; スタイル; ...]<ブロックテキスト>`);
+      で適用するスタイルを切り替えることができる。
+    }
+    +frame <
+      +font-style[bold]<
+        +p {
+          bold,
+          \font-style[medium; italic]{
+            italic,
+          }
+          bold
+        }
+      >
+    >
+    +code(`
+      +font-style[bold]<
+        +p {
+          bold,
+          \font-style[medium; italic]{
+            italic,
+          }
+          bold
+        }
+      >
+    `);
+  >
+  +section{文書作成者向け解説} <
+    +p {
+      基本的なコマンドは、フォントセットを設定する\code(`font-set`);と
+      フォントスタイルを設定する\code(`font-style`);の二種類。
+    }
+    +code (`
+      \font-set(フォントセット){インラインテキスト}
+      +font-set(フォントセット)<ブロックテキスト>
+    `);
+    +code (`
+      \font-style[スタイル; スタイル; ...]{インラインテキスト}
+      +font-style[スタイル; スタイル; ...]<ブロックテキスト>
+    `);
+    +subsection{フォントセット} <
+      +p {
+        \code(`font-set`);コマンドにより、引数のテキストに適用するフォントセットを変更することができる。入れ子になった場合は内側のものは外側のものを上書きする。
+        つまり、
+      }
+      +code (`
+        \font-set(font-set-a){
+          aaa
+          \font-set(font-set-b){
+            bbb
+          }
+          aaa
+        }
+      `);
+      +pn {
+        は
+      }
+      +code (`
+        \font-set(font-set-a){
+          aaa
+        }
+        \font-set(font-set-b){
+          bbb
+        }
+        \font-set(font-set-a){
+          aaa
+        }
+      `);
+      +pn {
+        と等しい。
+      }
+      +p {
+        現バージョンで用意されているフォントセットは以下の通り。
+      }
+      +listing {
+        * \code(`Fonts.default-font-set`);
+        (\code(`fss/fonts`);パッケージ)
+        \SATySFi;デフォルト文書クラスを摸したフォントセット。欧文にはJunicode (Regular, Bold, Italic, Bold Italic)を、和文
+        にはIPAexフォント（Medium Uprightスタイルでは\code(`ipaexm`);、
+        Bold乃至Italicスタイルでは\code(`ipaexg`);）が用いられる。
+      }
+    >
+    +subsection{フォントスタイル} <
+      +p {
+        \code(`font-style`);コマンドにより、引数のテキストに適用するフォントスタイルを変更することができる。
+      }
+      +p {
+        フォントスタイルは大きさ・幅・太さ等の軸によりなっており、各軸を独立に変更することができる。
+      }
+      +frame <
+        +font-style[bold]<
+          +p {
+            bold,
+            \font-style[italic]{
+              bold italic,
+            }
+            bold
+          }
+        >
+      >
+      +code(`
+        +font-style[bold]<
+          +p {
+            bold,
+            \font-style[italic]{
+              bold italic,
+            }
+            bold
+          }
+        >
+      `);
+      +p {
+        以下のスタイル変更キーワードが\code(`fss/style`);パッケージに用意されている。
+      }
+    >
+    +listing {
+      * 太さ軸：
+      ** \code(`medium`); 中字
+      ** \code(`bold`); 太字
+      * 書体軸：
+      ** \code(`upright`); 立体
+      ** \code(`italic`); イタリック体
+    }
+    +subsection{上手く行かない時} <
+      +p {
+        文書の先頭で\code(`Fss.set-debug-level`);を設定すると、詳細なログが残るようになる。ログレベルが大きい程ログが詳細になる。
+      }
+      +code(`
+        let () = Fss.set-debug-level % 0 から 10 までの自然数
+        in
+        >
+
+        document (| ... |) < ... >
+      `);
+    >
+  >
+  +section{ライブラリ作成者向け解説} <
+    +p {
+      未完
+    }
+  >
+  +section{課題} <
+    +subsection{フォントセットとフォントスタイルのコンテキストへの格納} <
+      +p {
+        \SATySFi; Confでgfnさんが発表されていたように、コンテキストを拡張可能にする計画がある。
+        実現した暁にはフォントセットとフォントスタイルもコンテキストに格納されるべきである。
+      }
+    >
+    +subsection{\code(`font-set`);と\code(`font-style`);の入れ子の挙動の違い} <
+      +p {
+        現在、\code(`font-set`);はフォントセットを上書きするが、
+        \code(`font-style`);はフォントスタイルの一部のみを更新する。
+        この二つの動作の差は混乱を招きかねない。
+      }
+    >
+    +subsection{多言語組版と\code(`font-set`);} <
+      +p {
+        \SATySFi;は書記体系毎にフォントを自動で切替する機能があり、これとフォントセットを整合的に定義するのは自明ではない。
+      }
+      +p {
+        また、言語切替もffsパッケージが認知しなければならない。
+      }
+    >
+    +subsection{オプティカルサイズフォント} <
+      +p {
+        オプティカルサイズフォントに対応するには、サイズの指定をfssパッケージ側で行う必要がある。
+      }
+      +p {
+        次バージョンで実装予定ではあるが、言語切替やフォントサイズ切替をフックする機能が\SATySFi;側にあっても良い気がする。
+      }
+    >
+    +subsection{フォールバック} <
+      +p {
+        完全にマッチするフォントが見つからなかった場合に利用者に通知せねばならない。
+        どうするのが最善なのだろうか。
+      }
+    >
+    +subsection{動作速度} <
+      +p {
+        フォントセットに属するフォント数が小さいうちは問題がないだろうが、多くなってくると
+        最適化する必要があると思われる。
+      }
+    >
+  >
 >
