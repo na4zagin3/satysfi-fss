@@ -12,6 +12,9 @@ module Fss : sig
   direct \font-set : [font-set; inline-text] inline-cmd
   direct \font-style : [(font-axes -> font-axes) list; inline-text] inline-cmd
 
+  direct +font-set : [font-set; block-text] block-cmd
+  direct +font-style : [(font-axes -> font-axes) list; block-text] block-cmd
+
   val set-debug-level : int -> unit
 
 end = struct
@@ -43,14 +46,32 @@ end = struct
     in
     read-inline ctx it
 
+  let with-font font-set font-axes ctx =
+    let font-comb = FontSelection.find-optimal-font font-set font-axes in
+    set-font-combination font-comb ctx
+
   let-inline ctx \font-set fs it =
     FssMutableInternal.with-font-set ?:`\font-set` ctx fs (fun fs fa ctx ->
-      read-inline ctx {\text-font(fs)(fa)(it);}
+      (let ctx = with-font fs fa ctx in
+      read-inline ctx it)
     )
 
   let-inline ctx \font-style ss it =
     FssMutableInternal.with-font-style ?:`\font-style` ctx ss (fun fs fa ctx ->
-      read-inline ctx {\text-font(fs)(fa)(it);}
+      (let ctx = with-font fs fa ctx in
+      read-inline ctx it)
+    )
+
+  let-block ctx +font-set fs bt =
+    FssMutableInternal.with-font-set ?:`+font-set` ctx fs (fun fs fa ctx ->
+      (let ctx = with-font fs fa ctx in
+      read-block ctx bt)
+    )
+
+  let-block ctx +font-style ss bt =
+    FssMutableInternal.with-font-style ?:`+font-style` ctx ss (fun fs fa ctx ->
+      (let ctx = with-font fs fa ctx in
+      read-block ctx bt)
     )
 
 end
