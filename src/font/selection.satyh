@@ -1,0 +1,97 @@
+@require: base/float
+@import: font
+@import: combination
+@import: style
+@import: axes
+@import: selection-cond
+@import: set
+
+
+module FontSelection : sig
+
+  val find-optimal-font : font-set -> font-axes -> font-combination
+
+  val set-debug-level : int -> unit
+
+end = struct
+  let module-name = `fss/font/selection`
+
+  let-mutable current-debug-level <- 0
+  let set-debug-level level =
+    current-debug-level <- level
+
+
+  let debug-font-combination level context font-comb =
+    if !current-debug-level >= level
+    then
+      display-message (module-name ^ `: `# ^ context ^ `: `# ^ FontCombination.to-string font-comb)
+    else ()
+
+  let font-selection-score-style cond target =
+    let width-score =
+      if string-same cond#width target#width
+      then 0.
+      else 0.1
+    in
+    let weight-score =
+      if string-same cond#weight target#weight
+      then 0.
+      else 0.1
+    in
+    let style-score =
+      if string-same cond#style target#style
+      then 0.
+      else 1.
+    in
+    width-score +. weight-score +. style-score
+
+  let font-selection-score-float coeff cond target =
+    let sq-coeff = coeff *. coeff in
+    let diff = (cond -. target) in
+    diff *. diff /. sq-coeff
+
+  let font-selection-score-int coeff cond target =
+    font-selection-score-float coeff (float cond) (float target)
+
+  let font-selection-score cond target =
+    let score-width = font-selection-score-int 100. cond#width target#width in
+    let score-weight = font-selection-score-float 100. cond#weight target#weight in
+    let score-slant = font-selection-score-int 100. cond#slant target#slant in
+    let score-style = font-selection-score-style cond#style target#style in
+    score-width +. score-weight +. score-slant +. score-style
+
+
+  let find-lowest score-f default-score default elems =
+    let-rec sub cur-score cur elems =
+      match elems with
+      | [] ->
+        let () = debug-font-combination 2 `find-lowest: result` cur in
+        (cur-score, cur)
+      | ((cond, elem)::elems) ->
+        let score = score-f cond in
+        let () = debug-font-combination 2 (`find-lowest: target (` ^ show-float score ^ `)`) elem in
+        if Float.(cur-score < score)
+        then sub cur-score cur elems
+        else sub score elem elems
+    in
+    let () = debug-font-combination 2 (`find-lowest: default (` ^ show-float default-score ^ `)`) default in
+    sub default-score default elems
+
+  let find-optimal-font font-set target =
+    let default-score = 1000. in
+    let (score, font) =
+      find-lowest
+        (fun cond -> font-selection-score cond target)
+        default-score
+        font-set#default-font
+        font-set#conditional-fonts
+    in
+    % TODO Warn when there are multiple matched fonts
+    if Float.is-zero score
+    then
+      let () = debug-font-combination 1 `find-optimal-font: matched` font in
+      font
+    else
+      let () = debug-font-combination 0 (`find-optimal-font: best guess of `# ^ FontAxes.to-string target ^ #` (score=` ^ show-float score ^ `)`) font in
+      font
+end

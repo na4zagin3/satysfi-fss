@@ -1,15 +1,17 @@
 @require: base/option-ext
-@import: fss
 @import: font/axes
 @import: font/set
 @import: fonts
 
 module FssMutableInternal : sig
-  direct \font-set : [font-set; inline-text] inline-cmd
-  direct \font-style : [(font-axes -> font-axes) list; inline-text] inline-cmd
+
+  val with-font-set : string ?-> context -> font-set -> (font-set -> font-axes -> context -> 'a) -> 'a
+  val with-font-style : string ?-> context -> (font-axes -> font-axes) list -> (font-set -> font-axes -> context -> 'a) -> 'a
 
   val set-debug-level : int -> unit
+
 end = struct
+
   let-mutable current-font-set <- Fonts.default-font-set
   let-mutable current-font-axes <- Fonts.default-font-axes
 
@@ -36,7 +38,7 @@ end = struct
     let () = current-font-set <- previous-fs in
     result
 
-  let with-style ?:context ctx ss f =
+  let with-font-style ?:context ctx ss f =
     let context = Option.unwrap-or `with-style` context in
     let previous-fa = !current-font-axes in
     let fa = List.fold-left (fun fa s -> s fa) previous-fa ss in
@@ -47,20 +49,4 @@ end = struct
     let () = current-font-axes <- previous-fa in
     result
 
-  let-inline ctx \font-set fs it =
-    with-font-set ?:`\font-set` ctx fs (fun fs fa ctx ->
-      read-inline ctx {\Fss.text-font(fs)(fa)(it);}
-    )
-
-  let-inline ctx \font-style ss it =
-    with-style ?:`\font-style` ctx ss (fun fs fa ctx ->
-      read-inline ctx {\Fss.text-font(fs)(fa)(it);}
-    )
-
 end
-
-let-inline ctx \font-set fs it =
-  read-inline ctx {\FssMutableInternal.font-set(fs)(it);}
-
-let-inline ctx \font-style ss it =
-  read-inline ctx {\FssMutableInternal.font-style(ss)(it);}

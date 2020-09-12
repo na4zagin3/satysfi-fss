@@ -2,11 +2,10 @@
 @require: fss/fss
 @require: fss/fonts
 @require: fss/font/style
+@require: fss/font/selection
 @require: fss/style
-@require: fss/mutable
 
 let () = Fss.set-debug-level 100
-let () = FssMutableInternal.set-debug-level 100
 
 let font-axes-bold =
   (| width = 100 ;
@@ -17,7 +16,7 @@ let font-axes-bold =
 in
 
 let bold-font =
-  Fss.find-optimal-font Fonts.default-font-set
+  FontSelection.find-optimal-font Fonts.default-font-set
     font-axes-bold
 in
 

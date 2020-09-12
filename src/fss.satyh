@@ -1,124 +1,56 @@
-@require: base/float
-@import: font/font
 @import: font/combination
-@import: font/style
-@import: font/axes
-@import: font/selection-cond
+@import: font/selection
 @import: font/set
+@import: mutable
 
-type 'a condition = Exact of 'a
 
 module Fss : sig
 
-  direct \text-font-combination : [font-combination; inline-text] inline-cmd
-  direct \text-font : [font-set; font-axes; inline-text] inline-cmd
+  val \text-font-combination : [font-combination; inline-text] inline-cmd
+  val \text-font : [font-set; font-axes; inline-text] inline-cmd
 
-  % val set-font-commbination : font-combination -> context -> context
-  val find-optimal-font : font-set -> font-axes -> font-combination
+  direct \font-set : [font-set; inline-text] inline-cmd
+  direct \font-style : [(font-axes -> font-axes) list; inline-text] inline-cmd
 
   val set-debug-level : int -> unit
 
 end = struct
-  let-mutable current-debug-level <- 0
-  let set-debug-level level =
-    current-debug-level <- level
 
-  let-rec set-font-commbination font-comb ctx =
+  let set-debug-level level =
+    let () = FontSelection.set-debug-level level in
+    let () = FssMutableInternal.set-debug-level level in
+    ()
+
+  let-rec set-font-combination font-comb ctx =
     match font-comb with
     | [] -> ctx
     | (font-pair :: font-comb) ->
       let font-triple =
         (font-pair#font#font-name, font-pair#font#ratio, font-pair#font#rising)
       in
-      set-font font-pair#script font-triple (set-font-commbination font-comb ctx)
-
-  let font-selection-score-style cond target =
-    let width-score =
-      if string-same cond#width target#width
-      then 0.
-      else 0.1
-    in
-    let weight-score =
-      if string-same cond#weight target#weight
-      then 0.
-      else 0.1
-    in
-    let style-score =
-      if string-same cond#style target#style
-      then 0.
-      else 1.
-    in
-    width-score +. weight-score +. style-score
-
-  let font-selection-score-float coeff cond target =
-    let sq-coeff = coeff *. coeff in
-    let diff = (cond -. target) in
-    diff *. diff /. sq-coeff
-
-  let font-selection-score-int coeff cond target =
-    font-selection-score-float coeff (float cond) (float target)
-
-  let font-selection-score cond target =
-    let score-width = font-selection-score-int 100. cond#width target#width in
-    let score-weight = font-selection-score-float 100. cond#weight target#weight in
-    let score-slant = font-selection-score-int 100. cond#slant target#slant in
-    let score-style = font-selection-score-style cond#style target#style in
-    score-width +. score-weight +. score-slant +. score-style
-
-  let string-of-font-combination =
-    FontCombination.to-string
-
-  let debug-font-combination level context font-comb =
-    if !current-debug-level >= level
-    then
-      display-message (`fss/fss: `# ^ context ^ `: `# ^ string-of-font-combination font-comb)
-    else ()
-
-
-  let find-lowest score-f default-score default elems =
-    let-rec sub cur-score cur elems =
-      match elems with
-      | [] ->
-        let () = debug-font-combination 2 `find-lowest: result` cur in
-        (cur-score, cur)
-      | ((cond, elem)::elems) ->
-        let score = score-f cond in
-        let () = debug-font-combination 2 (`find-lowest: target (` ^ show-float score ^ `)`) elem in
-        if Float.(cur-score < score)
-        then sub cur-score cur elems
-        else sub score elem elems
-    in
-    let () = debug-font-combination 2 (`find-lowest: default (` ^ show-float default-score ^ `)`) default in
-    sub default-score default elems
-
-  let find-optimal-font font-set target =
-    let default-score = 1000. in
-    let (score, font) =
-      find-lowest
-        (fun cond -> font-selection-score cond target)
-        default-score
-        font-set#default-font
-        font-set#conditional-fonts
-    in
-    % TODO Warn when there are multiple matched fonts
-    if Float.is-zero score
-    then
-      let () = debug-font-combination 1 `find-optimal-font: matched` font in
-      font
-    else
-      let () = debug-font-combination 0 (`find-optimal-font: best guess of `# ^ FontAxes.to-string target ^ #` (score=` ^ show-float score ^ `)`) font in
-      font
+      set-font font-pair#script font-triple (set-font-combination font-comb ctx)
 
   let-inline ctx \text-font-combination font-comb it =
     let ctx =
-      ctx |> set-font-commbination font-comb
+      ctx |> set-font-combination font-comb
     in
     read-inline ctx it
 
   let-inline ctx \text-font font-set font-axes it =
-    let font-comb = find-optimal-font font-set font-axes in
+    let font-comb = FontSelection.find-optimal-font font-set font-axes in
     let ctx =
-      ctx |> set-font-commbination font-comb
+      ctx |> set-font-combination font-comb
     in
     read-inline ctx it
+
+  let-inline ctx \font-set fs it =
+    FssMutableInternal.with-font-set ?:`\font-set` ctx fs (fun fs fa ctx ->
+      read-inline ctx {\text-font(fs)(fa)(it);}
+    )
+
+  let-inline ctx \font-style ss it =
+    FssMutableInternal.with-font-style ?:`\font-style` ctx ss (fun fs fa ctx ->
+      read-inline ctx {\text-font(fs)(fa)(it);}
+    )
+
 end
