@@ -18,11 +18,18 @@ type font-selection-cond =
 
 module FontSelectionCond : sig
 
-  val of-font-axes : font-axes -> font-selection-cond
+  val of-simple-config :
+    (| width : int ;
+      weight : float ;
+      slant : int;
+      style : font-style;
+%      charset : int;
+%      lang : string;
+    |) -> font-selection-cond
 
 end = struct
 
-  let of-font-axes fa =
+  let of-simple-config fa =
     And [
       FloatSingle (Weight, fa#weight);
       IntSingle (Width, fa#width);
