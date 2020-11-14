@@ -1,14 +1,20 @@
 @import: axes
 @import: style
 
+type font-selection-float-field =
+  | Weight
+
+type font-selection-int-field =
+  | Width
+  | Slant
+
 type font-selection-cond =
-  (| width : int ;
-    weight : float ;
-    slant : int;
-    style : font-style; % support lang-independent styles
-%    charset : int;
-%    lang : string;
-  |)
+  | FloatSingle of font-selection-float-field * float
+  | IntSingle of font-selection-int-field * int
+  | Style of font-style
+  | And of font-selection-cond list
+%  | Charset
+%  | Lang
 
 module FontSelectionCond : sig
 
@@ -17,10 +23,11 @@ module FontSelectionCond : sig
 end = struct
 
   let of-font-axes fa =
-    (| width = fa#width ;
-      weight = fa#weight ;
-      slant = fa#slant ;
-      style = fa#style ;
-    |)
+    And [
+      FloatSingle (Weight, fa#weight);
+      IntSingle (Width, fa#width);
+      IntSingle (Slant, fa#slant);
+      Style fa#style;
+    ]
 
 end

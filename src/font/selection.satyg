@@ -53,13 +53,26 @@ end = struct
   let font-selection-score-int coeff cond target =
     font-selection-score-float coeff (float cond) (float target)
 
-  let font-selection-score cond target =
-    let score-width = font-selection-score-int 100. cond#width target#width in
-    let score-weight = font-selection-score-float 100. cond#weight target#weight in
-    let score-slant = font-selection-score-int 100. cond#slant target#slant in
-    let score-style = font-selection-score-style cond#style target#style in
-    score-width +. score-weight +. score-slant +. score-style
-
+  let-rec font-selection-score cond target =
+    match cond with
+    | And cs ->
+      List.map (fun cond -> font-selection-score cond target) cs
+      |> List.fold-left (fun acc score -> acc +. score) 0.
+    | Style style ->
+      font-selection-score-style style target#style
+    | FloatSingle (field, value) ->
+      let target =
+        match field with
+        | Weight -> target#weight
+      in
+      font-selection-score-float 100. value target
+    | IntSingle (field, value) ->
+      let target =
+        match field with
+        | Width -> target#width
+        | Slant -> target#slant
+      in
+      font-selection-score-int 100. value target
 
   let find-lowest score-f default-score default elems =
     let-rec sub cur-score cur elems =
