@@ -1,0 +1,7 @@
+@import: axes
+
+type extended-context = context * font-axes
+
+let extended-context-to-string (ctx, fa) =
+  `{size=` ^ show-float (get-font-size ctx /' 1pt)
+  ^ `;` ^ `fa=` ^ FontAxes.to-string fa ^ `}`

@@ -1,12 +1,14 @@
 @require: base/option-ext
 @import: font/axes
+@import: font/context
 @import: font/set
 @import: fonts
 
+
 module FssMutableInternal : sig
 
-  val with-font-set : string ?-> context -> font-set -> (font-set -> font-axes -> context -> 'a) -> 'a
-  val with-font-style : string ?-> context -> (font-axes -> font-axes) list -> (font-set -> font-axes -> context -> 'a) -> 'a
+  val with-font-set : string ?-> context -> font-set -> (font-set -> extended-context -> 'a) -> 'a
+  val with-font-style : string ?-> context -> (extended-context -> extended-context) list -> (font-set -> extended-context -> 'a) -> 'a
 
   val set-debug-level : int -> unit
 
@@ -34,18 +36,18 @@ end = struct
     let () = current-font-set <- fs in
     let fa = !current-font-axes in
     let () = debug-message 1 context (FontSet.to-string previous-fs ^ #` -> `# ^ FontSet.to-string fs) in
-    let result = f fs fa ctx in
+    let result = f fs (ctx, fa) in
     let () = current-font-set <- previous-fs in
     result
 
   let with-font-style ?:context ctx ss f =
     let context = Option.unwrap-or `with-style` context in
     let previous-fa = !current-font-axes in
-    let fa = List.fold-left (fun fa s -> s fa) previous-fa ss in
+    let (ctx, fa) = List.fold-left (fun ectx s -> s ectx) (ctx, previous-fa) ss in
     let () = debug-message 1 context (FontAxes.to-string previous-fa ^ #` -> `# ^ FontAxes.to-string fa) in
     let () = current-font-axes <- fa in
     let fs = !current-font-set in
-    let result = f fs fa ctx in
+    let result = f fs (ctx, fa) in
     let () = current-font-axes <- previous-fa in
     result
 

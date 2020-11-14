@@ -3,13 +3,14 @@
 @import: combination
 @import: style
 @import: axes
+@import: context
 @import: selection-cond
 @import: set
 
 
 module FontSelection : sig
 
-  val find-optimal-font : font-set -> font-axes -> font-combination
+  val find-optimal-font : font-set -> extended-context -> font-combination
 
   val set-debug-level : int -> unit
 
@@ -53,26 +54,27 @@ end = struct
   let font-selection-score-int coeff cond target =
     font-selection-score-float coeff (float cond) (float target)
 
-  let-rec font-selection-score cond target =
+  let-rec font-selection-score cond ectx =
+    let (ctx, fa) = ectx in
     match cond with
     | And cs ->
-      List.map (fun cond -> font-selection-score cond target) cs
+      List.map (fun cond -> font-selection-score cond ectx) cs
       |> List.fold-left (fun acc score -> acc +. score) 0.
     | Style style ->
-      font-selection-score-style style target#style
+      font-selection-score-style style fa#style
     | FloatSingle (field, value) ->
-      let target =
+      let fa =
         match field with
-        | Weight -> target#weight
+        | Weight -> fa#weight
       in
-      font-selection-score-float 100. value target
+      font-selection-score-float 100. value fa
     | IntSingle (field, value) ->
-      let target =
+      let fa =
         match field with
-        | Width -> target#width
-        | Slant -> target#slant
+        | Width -> fa#width
+        | Slant -> fa#slant
       in
-      font-selection-score-int 100. value target
+      font-selection-score-int 100. value fa
 
   let find-lowest score-f default-score default elems =
     let-rec sub cur-score cur elems =
@@ -90,11 +92,11 @@ end = struct
     let () = debug-font-combination 2 (`find-lowest: default (` ^ show-float default-score ^ `)`) default in
     sub default-score default elems
 
-  let find-optimal-font font-set target =
+  let find-optimal-font font-set ectx =
     let default-score = 1000. in
     let (score, font) =
       find-lowest
-        (fun cond -> font-selection-score cond target)
+        (fun cond -> font-selection-score cond ectx)
         default-score
         font-set#default-font
         font-set#conditional-fonts
@@ -105,6 +107,6 @@ end = struct
       let () = debug-font-combination 1 `find-optimal-font: matched` font in
       font
     else
-      let () = debug-font-combination 0 (`find-optimal-font: best guess of `# ^ FontAxes.to-string target ^ #` (score=` ^ show-float score ^ `)`) font in
+      let () = debug-font-combination 0 (`find-optimal-font: best guess of `# ^ extended-context-to-string ectx ^ #` (score=` ^ show-float score ^ `)`) font in
       font
 end

@@ -1,4 +1,5 @@
 @import: font/combination
+@import: font/context
 @import: font/selection
 @import: font/set
 @import: mutable
@@ -10,10 +11,10 @@ module Fss : sig
   val \text-font : [font-set; font-axes; inline-text] inline-cmd
 
   direct \font-set : [font-set; inline-text] inline-cmd
-  direct \font-style : [(font-axes -> font-axes) list; inline-text] inline-cmd
+  direct \font-style : [(extended-context -> extended-context) list; inline-text] inline-cmd
 
   direct +font-set : [font-set; block-text] block-cmd
-  direct +font-style : [(font-axes -> font-axes) list; block-text] block-cmd
+  direct +font-style : [(extended-context -> extended-context) list; block-text] block-cmd
 
   val set-debug-level : int -> unit
 
@@ -40,36 +41,36 @@ end = struct
     read-inline ctx it
 
   let-inline ctx \text-font font-set font-axes it =
-    let font-comb = FontSelection.find-optimal-font font-set font-axes in
+    let font-comb = FontSelection.find-optimal-font font-set (ctx, font-axes) in
     let ctx =
       ctx |> set-font-combination font-comb
     in
     read-inline ctx it
 
   let with-font font-set font-axes ctx =
-    let font-comb = FontSelection.find-optimal-font font-set font-axes in
+    let font-comb = FontSelection.find-optimal-font font-set (ctx, font-axes) in
     set-font-combination font-comb ctx
 
   let-inline ctx \font-set fs it =
-    FssMutableInternal.with-font-set ?:`\font-set` ctx fs (fun fs fa ctx ->
+    FssMutableInternal.with-font-set ?:`\font-set` ctx fs (fun fs (ctx, fa) ->
       (let ctx = with-font fs fa ctx in
       read-inline ctx it)
     )
 
   let-inline ctx \font-style ss it =
-    FssMutableInternal.with-font-style ?:`\font-style` ctx ss (fun fs fa ctx ->
+    FssMutableInternal.with-font-style ?:`\font-style` ctx ss (fun fs (ctx, fa) ->
       (let ctx = with-font fs fa ctx in
       read-inline ctx it)
     )
 
   let-block ctx +font-set fs bt =
-    FssMutableInternal.with-font-set ?:`+font-set` ctx fs (fun fs fa ctx ->
+    FssMutableInternal.with-font-set ?:`+font-set` ctx fs (fun fs (ctx, fa) ->
       (let ctx = with-font fs fa ctx in
       read-block ctx bt)
     )
 
   let-block ctx +font-style ss bt =
-    FssMutableInternal.with-font-style ?:`+font-style` ctx ss (fun fs fa ctx ->
+    FssMutableInternal.with-font-style ?:`+font-style` ctx ss (fun fs (ctx, fa) ->
       (let ctx = with-font fs fa ctx in
       read-block ctx bt)
     )
