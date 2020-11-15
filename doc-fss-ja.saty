@@ -45,8 +45,8 @@ document (|
     +frame <
       +p {
         regular,
-        \font-style[bold]{
-          bold,
+        \font-style[font-size 16pt]{
+          regular 16pt,
         }
         \font-style[bold; italic]{
           bold italic,
@@ -57,8 +57,8 @@ document (|
     +code(`
       +p {
         regular,
-        \font-style[bold]{
-          bold,
+        \font-style[font-size 16pt]{
+          regular 16pt,
         }
         \font-style[bold; italic]{
           bold italic,
@@ -112,10 +112,7 @@ document (|
       }
     `);
     +p {
-      スタイルは複数指定可能
-      や
-      \code(`+font-style[スタイル; スタイル; ...]<ブロックテキスト>`);
-      で適用するスタイルを切り替えることができる。
+       以下の様にスタイルは複数指定可能である。
     }
     +frame <
       +font-style[bold]<
@@ -229,12 +226,15 @@ document (|
       }
     >
     +listing {
+      * 大きさ軸：
+      ** \code(`font-size : length -> style`); 指定された大きさに設定。
+      ** \code(`with-font-size : (length -> length) -> style`); 現在の大きさを指定された函数に適用し、その返り値を大きさとして設定。
       * 太さ軸：
-      ** \code(`medium`); 中字
-      ** \code(`bold`); 太字
+      ** \code(`medium : style`); 中字に設定
+      ** \code(`bold : style`); 太字に設定
       * 書体軸：
-      ** \code(`upright`); 立体
-      ** \code(`italic`); イタリック体
+      ** \code(`upright : style`); 立体に設定
+      ** \code(`italic : style`); イタリック体に設定
     }
     +subsection{上手く行かない時} <
       +p {

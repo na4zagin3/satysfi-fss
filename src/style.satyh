@@ -11,6 +11,9 @@ module Style : sig
   val upright : style
   val italic : style
 
+  val font-size : length -> style
+  val with-font-size : (length -> length) -> style
+
 end = struct
 
   let bold (ctx, fs) =
@@ -28,9 +31,25 @@ end = struct
     let fs = (| fs with slant = 100 ; style = (| fs#style with style = `Italic` |) |) in
     (ctx, fs)
 
+  let with-font-size f (ctx, fs) =
+    let font-size =
+      get-font-size ctx
+      |> f
+    in
+    let ctx =
+      set-font-size font-size ctx
+    in
+    (ctx, fs)
+
+  let font-size s =
+    let f _ = s in
+    with-font-size f
+
 end
 
 let bold = Style.bold
 let medium = Style.medium
 let upright = Style.upright
 let italic = Style.italic
+let font-size = Style.font-size
+let with-font-size = Style.with-font-size

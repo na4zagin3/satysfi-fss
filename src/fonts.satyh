@@ -40,7 +40,12 @@ end = struct
     |)
   let default-font-cond-r : font-selection-cond =
     FontSelectionCond.of-simple-config
-      default-font-axes
+      (| font-size = None ;
+        width = 100 ;
+        weight = 80. ;
+        slant = 0 ;
+        style = FontStyle.parse `Regular` ;
+      |)
 
   let default-font-combination-i : font-combination =
   [ font-default-Jpan HanIdeographic `ipaexg` ;
@@ -50,7 +55,8 @@ end = struct
   ]
   let default-font-cond-i : font-selection-cond =
     FontSelectionCond.of-simple-config
-      (| width = 100 ;
+      (| font-size = None ;
+        width = 100 ;
         weight = 80. ;
         slant = 100 ;
         style = FontStyle.parse `Italic` ;
@@ -64,7 +70,8 @@ end = struct
   ]
   let default-font-cond-b : font-selection-cond =
     FontSelectionCond.of-simple-config
-      (| width = 100 ;
+      (| font-size = None ;
+        width = 100 ;
         weight = 180. ;
         slant = 0 ;
         style = FontStyle.parse `Bold` ;
@@ -78,7 +85,8 @@ end = struct
   ]
   let default-font-cond-bi : font-selection-cond =
     FontSelectionCond.of-simple-config
-      (| width = 100 ;
+      (| font-size = None ;
+        width = 100 ;
         weight = 180. ;
         slant = 100 ;
         style = FontStyle.parse `Bold Italic` ;

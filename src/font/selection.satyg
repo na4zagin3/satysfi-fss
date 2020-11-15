@@ -22,6 +22,47 @@ end = struct
     current-debug-level <- level
 
 
+  type score = float
+
+  module Score : sig
+
+    val conj : score -> score -> score
+    val disj : score -> score -> score
+
+    val unit-conj : score
+    val unit-disj : score
+
+    val of-float : float -> score
+
+    val (<) : score -> score -> bool
+
+    val to-string : score -> string
+
+  end = struct
+
+    let conj a b =
+      (a +. b)
+
+    let disj a b =
+      Float.(min a b)
+
+    let unit-conj =
+      0.
+    let unit-disj =
+      Float.inf
+
+    let of-float f =
+      f
+
+    let to-string a =
+      show-float a
+
+    let (<) a b =
+      Float.(a < b)
+
+  end
+
+
   let debug-font-combination level context font-comb =
     if !current-debug-level >= level
     then
@@ -44,12 +85,17 @@ end = struct
       then 0.
       else 1.
     in
-    width-score +. weight-score +. style-score
+    Score.of-float (width-score +. weight-score +. style-score)
+
+  let font-selection-score-length coeff cond target =
+    let sq-coeff = coeff *. coeff in
+    let diff = (cond -' target) /' target in
+    Score.of-float (diff *. diff /. sq-coeff)
 
   let font-selection-score-float coeff cond target =
     let sq-coeff = coeff *. coeff in
     let diff = (cond -. target) in
-    diff *. diff /. sq-coeff
+    Score.of-float (diff *. diff /. sq-coeff)
 
   let font-selection-score-int coeff cond target =
     font-selection-score-float coeff (float cond) (float target)
@@ -59,9 +105,16 @@ end = struct
     match cond with
     | And cs ->
       List.map (fun cond -> font-selection-score cond ectx) cs
-      |> List.fold-left (fun acc score -> acc +. score) 0.
+      |> List.fold-left Score.conj Score.unit-conj
     | Style style ->
       font-selection-score-style style fa#style
+    | LengthSingle (field, value) ->
+      let target =
+        match field with
+        | FontSize ->
+          get-font-size ctx
+      in
+      font-selection-score-length 100. value target
     | FloatSingle (field, value) ->
       let fa =
         match field with
@@ -85,14 +138,15 @@ end = struct
       | ((cond, elem)::elems) ->
         let score = score-f cond in
         let () = debug-font-combination 2 (`find-lowest: target (` ^ show-float score ^ `)`) elem in
-        if Float.(cur-score < score)
+        if Score.(cur-score < score)
         then sub cur-score cur elems
         else sub score elem elems
     in
-    let () = debug-font-combination 2 (`find-lowest: default (` ^ show-float default-score ^ `)`) default in
+    let () = debug-font-combination 2 (`find-lowest: default (` ^ Score.to-string default-score ^ `)`) default in
     sub default-score default elems
 
   let find-optimal-font font-set ectx =
+    % get the default score from the font-set
     let default-score = 1000. in
     let (score, font) =
       find-lowest

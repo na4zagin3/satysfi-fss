@@ -1,6 +1,9 @@
 @import: axes
 @import: style
 
+type font-selection-length-field =
+  | FontSize
+
 type font-selection-float-field =
   | Weight
 
@@ -9,6 +12,7 @@ type font-selection-int-field =
   | Slant
 
 type font-selection-cond =
+  | LengthSingle of font-selection-length-field * length
   | FloatSingle of font-selection-float-field * float
   | IntSingle of font-selection-int-field * int
   | Style of font-style
@@ -19,7 +23,8 @@ type font-selection-cond =
 module FontSelectionCond : sig
 
   val of-simple-config :
-    (| width : int ;
+    (| font-size : length option ;
+      width : int ;
       weight : float ;
       slant : int;
       style : font-style;
@@ -30,11 +35,23 @@ module FontSelectionCond : sig
 end = struct
 
   let of-simple-config fa =
-    And [
-      FloatSingle (Weight, fa#weight);
-      IntSingle (Width, fa#width);
-      IntSingle (Slant, fa#slant);
-      Style fa#style;
-    ]
+    let cs =
+      let f acc o =
+        match o with
+        | None -> acc
+        | Some e -> e :: acc
+      in
+      [
+        Option.map (fun size ->
+          LengthSingle (FontSize, size))
+          fa#font-size;
+        Some (FloatSingle (Weight, fa#weight));
+        Some (IntSingle (Width, fa#width));
+        Some (IntSingle (Slant, fa#slant));
+        Some (Style fa#style);
+      ]
+      |> List.fold-left f []
+    in
+    And cs
 
 end
