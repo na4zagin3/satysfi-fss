@@ -6,6 +6,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.1.0]
+### Added
+- Style keywords `font-size` and `with-font-size`
+
 ## [0.0.1]
 ### Added
 - Basic functionalities as a font selection scheme
@@ -13,4 +17,5 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 [Unreleased]: https://github.com/na4zagin3/satysfi-fss/compare/v0.0.1...HEAD
 [0.0.1]: https://github.com/na4zagin3/satysfi-fss/tag/v0.0.1
+[0.1.0]: https://github.com/na4zagin3/satysfi-fss/tag/v0.1.0
 
