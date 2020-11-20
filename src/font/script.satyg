@@ -1,0 +1,82 @@
+@require: base/base
+@require: base/eq
+@require: base/ord
+@require: base/set
+
+@import: font
+
+module FontScript : sig
+
+  type t
+
+  val eq : (t Eq.t) implicit
+  val ord : (t Ord.t) implicit
+
+  val compare : t -> t -> ordering
+  val to-string : t -> string
+
+  val to-satysfi-script : t -> script
+
+  val hani : t
+  val kana : t
+  val latn : t
+  val other : t
+
+  val set-diff : t Set.t -> t Set.t -> t Set.t
+  val set-union : t Set.t -> t Set.t -> t Set.t
+  val set-mem : t -> t Set.t -> bool
+
+end = struct
+
+  type t = script
+
+  let compare a b =
+    match (a, b) with
+    | (HanIdeographic, HanIdeographic) -> Eq
+    | (HanIdeographic, _) -> Lt
+    | (_, HanIdeographic) -> Gt
+    | (Kana, Kana) -> Eq
+    | (Kana, _) -> Lt
+    | (_, Kana) -> Gt
+    | (Latin, Latin) -> Eq
+    | (Latin, _) -> Lt
+    | (_, Latin) -> Gt
+    | (OtherScript, OtherScript) -> Eq
+%   | (OtherScript, _) -> Lt
+%   | (_, OtherScript) -> Gt
+
+  let ord =
+    Ord.make compare
+
+  let eq =
+    Ord.derive-eq ord
+
+  let to-string script =
+    match script with
+    | HanIdeographic -> `hani`
+    | Kana -> `kana`
+    | Latin -> `latn`
+    | OtherScript -> `OtherScript`
+
+  let to-satysfi-script x = x
+
+  let hani = HanIdeographic
+  let kana = Kana
+  let latn = Latin
+  let other = OtherScript
+
+
+  let set-diff a b =
+    List.fold-left (fun acc x ->
+      Set.remove eq x acc)
+      a
+      (Set.to-list eq b)
+
+  let set-union a b =
+    List.append (Set.to-list eq a) (Set.to-list eq b)
+    |> Set.of-list
+
+  let set-mem =
+    Set.mem eq
+
+end

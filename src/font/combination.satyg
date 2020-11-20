@@ -1,7 +1,8 @@
 @import: font
+@import: script
 
 type font-combination-pair =
-  (| script : script ;
+  (| script : FontScript.t ;
      font : font;
   |)
 

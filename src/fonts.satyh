@@ -1,5 +1,9 @@
+@require: base/set
+
 @import: font/selection-cond
 @import: font/axes
+@import: font/script
+@import: font/set
 
 module Fonts : sig
 
@@ -27,10 +31,10 @@ end = struct
     |)
 
   let default-font-combination-r : font-combination =
-  [ font-default-Jpan HanIdeographic `ipaexm` ;
-    font-default-Jpan Kana `ipaexm` ;
-    font-default-Latn Latin `fonts-junicode:Junicode` ;
-    font-default-Latn OtherScript `fonts-junicode:Junicode` ;
+  [ font-default-Jpan FontScript.hani `ipaexm` ;
+    font-default-Jpan FontScript.kana `ipaexm` ;
+    font-default-Latn FontScript.latn `fonts-junicode:Junicode` ;
+    font-default-Latn FontScript.other `fonts-junicode:Junicode` ;
   ]
   let default-font-axes : font-axes =
     (| width = 100 ;
@@ -48,10 +52,10 @@ end = struct
       |)
 
   let default-font-combination-i : font-combination =
-  [ font-default-Jpan HanIdeographic `ipaexg` ;
-    font-default-Jpan Kana `ipaexg` ;
-    font-default-Latn Latin `fonts-junicode:Junicode-Italic` ;
-    font-default-Latn OtherScript `fonts-junicode:Junicode-Italic` ;
+  [ font-default-Jpan FontScript.hani `ipaexg` ;
+    font-default-Jpan FontScript.kana `ipaexg` ;
+    font-default-Latn FontScript.latn `fonts-junicode:Junicode-Italic` ;
+    font-default-Latn FontScript.other `fonts-junicode:Junicode-Italic` ;
   ]
   let default-font-cond-i : font-selection-cond =
     FontSelectionCond.of-simple-config
@@ -63,10 +67,10 @@ end = struct
       |)
 
   let default-font-combination-b : font-combination =
-  [ font-default-Jpan HanIdeographic `ipaexg` ;
-    font-default-Jpan Kana `ipaexg` ;
-    font-default-Latn Latin `fonts-junicode:Junicode-Bold` ;
-    font-default-Latn OtherScript `fonts-junicode:Junicode-Bold` ;
+  [ font-default-Jpan FontScript.hani `ipaexg` ;
+    font-default-Jpan FontScript.kana `ipaexg` ;
+    font-default-Latn FontScript.latn `fonts-junicode:Junicode-Bold` ;
+    font-default-Latn FontScript.other `fonts-junicode:Junicode-Bold` ;
   ]
   let default-font-cond-b : font-selection-cond =
     FontSelectionCond.of-simple-config
@@ -78,10 +82,10 @@ end = struct
       |)
 
   let default-font-combination-bi : font-combination =
-  [ font-default-Jpan HanIdeographic `ipaexg` ;
-    font-default-Jpan Kana `ipaexg` ;
-    font-default-Latn Latin `fonts-junicode:Junicode-BoldItalic` ;
-    font-default-Latn OtherScript `fonts-junicode:Junicode-BoldItalic` ;
+  [ font-default-Jpan FontScript.hani `ipaexg` ;
+    font-default-Jpan FontScript.kana `ipaexg` ;
+    font-default-Latn FontScript.latn `fonts-junicode:Junicode-BoldItalic` ;
+    font-default-Latn FontScript.other `fonts-junicode:Junicode-BoldItalic` ;
   ]
   let default-font-cond-bi : font-selection-cond =
     FontSelectionCond.of-simple-config
@@ -99,6 +103,12 @@ end = struct
           (default-font-cond-i, default-font-combination-i) ;
           (default-font-cond-b, default-font-combination-b) ;
           (default-font-cond-bi, default-font-combination-bi) ;
+        ];
+      covered-area = Set.of-list [
+          FontScript.hani ;
+          FontScript.kana ;
+          FontScript.latn ;
+          FontScript.other ;
         ];
     |)
 

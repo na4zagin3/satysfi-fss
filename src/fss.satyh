@@ -20,10 +20,21 @@ module Fss : sig
 
 end = struct
 
+  let module-name = `fss/fss`
+
+  let-mutable current-debug-level <- 0
+
   let set-debug-level level =
     let () = FontSelection.set-debug-level level in
     let () = FssMutableInternal.set-debug-level level in
-    ()
+    current-debug-level <- level
+
+  let debug-font-combination level context font-comb =
+    if !current-debug-level >= level
+    then
+      display-message (module-name ^ `: `# ^ context ^ `: `# ^ FontCombination.to-string font-comb)
+    else ()
+
 
   let-rec set-font-combination font-comb ctx =
     match font-comb with
@@ -32,7 +43,7 @@ end = struct
       let font-triple =
         (font-pair#font#font-name, font-pair#font#ratio, font-pair#font#rising)
       in
-      set-font font-pair#script font-triple (set-font-combination font-comb ctx)
+      set-font (FontScript.to-satysfi-script font-pair#script) font-triple (set-font-combination font-comb ctx)
 
   let-inline ctx \text-font-combination font-comb it =
     let ctx =
@@ -44,6 +55,7 @@ end = struct
     let font-comb =
       FontSelection.find-optimal-font font-set (ctx, font-axes)
     in
+    let () = debug-font-combination 2 `with-font: ` font-comb in
     set-font-combination font-comb ctx
 
   let-inline ctx \text-font font-set font-axes it =

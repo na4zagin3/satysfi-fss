@@ -1,3 +1,6 @@
+@require: base/base
+@require: base/eq
+@require: base/ord
 @require: base/float
 @import: font
 @import: combination
@@ -26,15 +29,23 @@ end = struct
 
   module Score : sig
 
+    val ord : (score Ord.t) implicit
+    val eq : (score Eq.t) implicit
+
     val conj : score -> score -> score
     val disj : score -> score -> score
+
+    val compare : score -> score -> ordering
 
     val unit-conj : score
     val unit-disj : score
 
+    val is-truthy : score -> bool
+
     val of-float : float -> score
 
     val (<) : score -> score -> bool
+    val (==) : score -> score -> bool
 
     val to-string : score -> string
 
@@ -59,6 +70,24 @@ end = struct
 
     let (<) a b =
       Float.(a < b)
+
+    let (==) a b =
+      Float.(a == b)
+
+    let is-truthy s =
+      s < unit-disj
+
+    let compare a b =
+      if Float.(a < b)
+      then Lt
+      else if Float.(a > b)
+            then Gt
+            else Eq
+
+    let ord =
+      Ord.make compare
+
+    let eq = Ord.derive-eq ord
 
   end
 
@@ -100,6 +129,15 @@ end = struct
   let font-selection-score-int coeff cond target =
     font-selection-score-float coeff (float cond) (float target)
 
+  % This should be updated when SATySFi changed script type
+  let font-selection-score-script cond target =
+    match (cond, target) with
+    | (HanIdeographic, HanIdeographic) -> Score.unit-conj
+    | (Kana, Kana) -> Score.unit-conj
+    | (Latin, Latin) -> Score.unit-conj
+    | (OtherScript, OtherScript) -> Score.unit-conj
+    | (_, _) -> Score.unit-disj
+
   let-rec font-selection-score cond ectx =
     let (ctx, fa) = ectx in
     match cond with
@@ -129,38 +167,53 @@ end = struct
       in
       font-selection-score-int 100. value fa
 
-  let find-lowest score-f default-score default elems =
-    let-rec sub cur-score cur elems =
-      match elems with
-      | [] ->
-        let () = debug-font-combination 2 `find-lowest: result` cur in
-        (cur-score, cur)
-      | ((cond, elem)::elems) ->
-        let score = score-f cond in
-        let () = debug-font-combination 2 (`find-lowest: target (` ^ show-float score ^ `)`) elem in
-        if Score.(cur-score < score)
-        then sub cur-score cur elems
-        else sub score elem elems
+  let concat-somes-rev xs =
+    let f acc x =
+      match x with
+      | Some x -> x :: acc
+      | None -> acc
     in
-    let () = debug-font-combination 2 (`find-lowest: default (` ^ Score.to-string default-score ^ `)`) default in
-    sub default-score default elems
+    List.fold-left f [] xs
+
+  let sort-by-score-desc score-f fonts =
+    let ses =
+      let ord =
+        Ord.make (fun (a, _) (b, _) ->
+          Score.compare b a)
+      in
+      let snd-with-debug (score, font) =
+        let () =
+          debug-font-combination
+            2
+            (`sort-by-score-desc: score (` ^ show-float score ^ `)`)
+            font
+        in
+        font
+      in
+      let calc-score (cond, font) =
+        let score = score-f cond in
+        let () = debug-font-combination 2 (`sort-by-score-desc: calc (` ^ show-float score ^ `)`) font in
+        if Score.is-truthy score
+        then Some (score, font)
+        else None
+      in
+      List.map calc-score fonts
+      |> concat-somes-rev
+      |> List.mergesort ord
+      |> List.map snd-with-debug
+      |> List.concat
+    in
+    ses
+
+  let sort-fonts-by-font-desc font-set ectx =
+    sort-by-score-desc
+      (fun cond -> font-selection-score cond ectx)
+      font-set#conditional-fonts
+    |> List.append font-set#default-font
+    |> List.reverse
 
   let find-optimal-font font-set ectx =
-    % get the default score from the font-set
-    let default-score = 1000. in
-    let (score, font) =
-      find-lowest
-        (fun cond -> font-selection-score cond ectx)
-        default-score
-        font-set#default-font
-        font-set#conditional-fonts
-    in
-    % TODO Warn when there are multiple matched fonts
-    if Float.is-zero score
-    then
-      let () = debug-font-combination 1 `find-optimal-font: matched` font in
-      font
-    else
-      let () = debug-font-combination 0 (`find-optimal-font: best guess of `# ^ extended-context-to-string ectx ^ #` (score=` ^ show-float score ^ `)`) font in
-      font
+    % TODO Optimize font-combination to reduce invocations of set-font
+    sort-fonts-by-font-desc font-set ectx
+
 end

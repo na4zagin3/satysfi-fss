@@ -1,17 +1,60 @@
+@require: base/set
+
 @import: combination
+@import: script
 @import: selection-cond
+
+type font-set-covered-area = script
 
 type font-set =
   (| default-font : font-combination ;
     conditional-fonts : (font-selection-cond * font-combination) list ;
+    covered-area : FontScript.t Set.t
   |)
 
 module FontSet : sig
 
   val to-string : font-set -> string
+  val combine : font-set -> font-set -> font-set
 
 end = struct
 
   let to-string fs = `<font-set>`
+
+  let set-diff a b =
+    let eq = FontScript.eq in
+    List.fold-left (fun acc x ->
+      Set.remove eq x acc)
+      a
+      (Set.to-list eq b)
+
+  let set-union a b =
+    let eq = FontScript.eq in
+    List.append (Set.to-list eq a) (Set.to-list eq b)
+    |> Set.of-list
+
+  let combine base override =
+    let area-to-be-removed =
+      set-diff base#covered-area override#covered-area
+    in
+    let filter-font-pair : font-combination -> font-combination =
+      List.filter (fun fp ->
+        Set.mem FontScript.eq fp#script area-to-be-removed)
+    in
+    let base-default-font =
+      filter-font-pair base#default-font
+    in
+    let base-conditional-fonts =
+      List.map (fun (cond, fc) ->
+        (cond, filter-font-pair fc))
+        base#conditional-fonts
+    in
+    (| default-font =
+        List.append base-default-font override#default-font;
+      conditional-fonts =
+        List.append base-conditional-fonts override#conditional-fonts;
+      covered-area =
+        set-union base#covered-area override#covered-area;
+    |)
 
 end
