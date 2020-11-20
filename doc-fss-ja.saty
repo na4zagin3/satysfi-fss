@@ -18,8 +18,11 @@ let-block ctx +display-boxes content code =
 
 in
 
+let () = Fss.set-debug-level 100
+in
+
 document (|
-  title = {satysfi-fss};
+  title = {satysfi-fss v0.1.0};
   author = {\code(`@na4zagin3`);};
   show-title = true;
   show-toc = false;
@@ -152,37 +155,11 @@ document (|
     `);
     +subsection{フォントセット} <
       +p {
-        \code(`font-set`);コマンドにより、引数のテキストに適用するフォントセットを変更することができる。入れ子になった場合は内側のものは外側のものを上書きする。
-        つまり、
-      }
-      +code (`
-        \font-set(font-set-a){
-          aaa
-          \font-set(font-set-b){
-            bbb
-          }
-          aaa
-        }
-      `);
-      +pn {
-        は
-      }
-      +code (`
-        \font-set(font-set-a){
-          aaa
-        }
-        \font-set(font-set-b){
-          bbb
-        }
-        \font-set(font-set-a){
-          aaa
-        }
-      `);
-      +pn {
-        と等しい。
+        \code(`font-set`);コマンドにより、引数のテキストに適用するフォントセットを変更することができる。
+        入れ子になった場合の動作は未定義である。
       }
       +p {
-        現バージョンで用意されているフォントセットは以下の通り。
+        現バージョンで用意されているフォントセットは以下の一つのみ。
       }
       +listing {
         * \code(`Fonts.default-font-set`);
