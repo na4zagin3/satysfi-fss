@@ -40,16 +40,17 @@ end = struct
     in
     read-inline ctx it
 
+  let with-font font-set font-axes ctx =
+    let font-comb =
+      FontSelection.find-optimal-font font-set (ctx, font-axes)
+    in
+    set-font-combination font-comb ctx
+
   let-inline ctx \text-font font-set font-axes it =
-    let font-comb = FontSelection.find-optimal-font font-set (ctx, font-axes) in
     let ctx =
-      ctx |> set-font-combination font-comb
+      ctx |> with-font font-set font-axes
     in
     read-inline ctx it
-
-  let with-font font-set font-axes ctx =
-    let font-comb = FontSelection.find-optimal-font font-set (ctx, font-axes) in
-    set-font-combination font-comb ctx
 
   let-inline ctx \font-set fs it =
     FssMutableInternal.with-font-set ?:`\font-set` ctx fs (fun fs (ctx, fa) ->
