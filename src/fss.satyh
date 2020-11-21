@@ -11,9 +11,9 @@ module Fss : sig
   val \text-font : [font-set; font-axes; inline-text] inline-cmd
 
   direct \font-set : [font-set; inline-text] inline-cmd
-  direct \font-style : [(extended-context -> extended-context) list; inline-text] inline-cmd
-
   direct +font-set : [font-set; block-text] block-cmd
+
+  direct \font-style : [(extended-context -> extended-context) list; inline-text] inline-cmd
   direct +font-style : [(extended-context -> extended-context) list; block-text] block-cmd
 
   val set-debug-level : int -> unit
@@ -64,28 +64,34 @@ end = struct
     in
     read-inline ctx it
 
-  let-inline ctx \font-set fs it =
-    FssMutableInternal.with-font-set ?:`\font-set` ctx fs (fun fs (ctx, fa) ->
+  let with-font-set msg-context override ctx fs f =
+    let current-fs = FssMutableInternal.get-font-set ctx in
+    let fs =
+      if override
+      then fs
+      else FontSet.combine current-fs fs
+    in
+    FssMutableInternal.with-font-set ?:msg-context ctx fs (fun fs (ctx, fa) ->
       (let ctx = with-font fs fa ctx in
-      read-inline ctx it)
+      f ctx)
+    )
+
+  let-inline ctx \font-set fs it =
+    with-font-set `\font-set` true ctx fs (fun ctx -> read-inline ctx it)
+
+  let-block ctx +font-set fs bt =
+    with-font-set `+font-set` true ctx fs (fun ctx -> read-block ctx bt)
+
+  let with-font-style msg-context ctx ss f =
+    FssMutableInternal.with-font-style ?:msg-context ctx ss (fun fs (ctx, fa) ->
+      (let ctx = with-font fs fa ctx in
+      f ctx)
     )
 
   let-inline ctx \font-style ss it =
-    FssMutableInternal.with-font-style ?:`\font-style` ctx ss (fun fs (ctx, fa) ->
-      (let ctx = with-font fs fa ctx in
-      read-inline ctx it)
-    )
+    with-font-style `\font-style` ctx ss (fun ctx -> read-inline ctx it)
 
-  let-block ctx +font-set fs bt =
-    FssMutableInternal.with-font-set ?:`+font-set` ctx fs (fun fs (ctx, fa) ->
-      (let ctx = with-font fs fa ctx in
-      read-block ctx bt)
-    )
-
-  let-block ctx +font-style ss bt =
-    FssMutableInternal.with-font-style ?:`+font-style` ctx ss (fun fs (ctx, fa) ->
-      (let ctx = with-font fs fa ctx in
-      read-block ctx bt)
-    )
+  let-block ctx +font-style ss it =
+    with-font-style `+font-style` ctx ss (fun ctx -> read-block ctx it)
 
 end
