@@ -48,16 +48,17 @@ end = struct
   let with-font-style ?:context (previous-ctx) ss f =
     let context = Option.unwrap-or `with-style` context in
     let previous-fa = !current-font-axes in
-    let (ctx, fa) = List.fold-left (fun ectx s -> s ectx) (previous-ctx, previous-fa) ss in
+    let previous-ectx = (previous-ctx, previous-fa) in
+    let ectx = List.fold-left (fun ectx s -> s ectx) previous-ectx ss in
     let () = debug-message
         1
         context
-        (FontAxes.extended-context-to-string (previous-ctx, previous-fa)
+        (ExtendedContext.to-string previous-ectx
         ^ #` -> `#
-        ^ FontAxes.extended-context-to-string (ctx, fa)) in
-    let () = current-font-axes <- fa in
+        ^ ExtendedContext.to-string ectx) in
+    let () = current-font-axes <- ExtendedContext.get-font-axes ectx in
     let fs = !current-font-set in
-    let result = f fs (ctx, fa) in
+    let result = f fs ectx in
     let () = current-font-axes <- previous-fa in
     result
 

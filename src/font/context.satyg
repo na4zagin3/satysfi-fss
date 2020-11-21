@@ -5,3 +5,42 @@ type extended-context = context * font-axes
 let extended-context-to-string (ctx, fa) =
   `{size=` ^ show-float (get-font-size ctx /' 1pt)
   ^ `;` ^ `fa=` ^ FontAxes.to-string fa ^ `}`
+
+module ExtendedContext : sig
+
+  val get-context : extended-context -> context
+  val set-context : context -> extended-context -> extended-context
+
+  val get-font-axes : extended-context -> font-axes
+  val set-font-axes : font-axes -> extended-context -> extended-context
+
+  val get-font-size : extended-context -> length
+  val set-font-size : length -> extended-context -> extended-context
+
+  val to-string : extended-context -> string
+
+end = struct
+
+  let get-context (ctx, fa) = ctx
+  let set-context ctx (_, fa) = (ctx, fa)
+
+  let get-font-axes (ctx, fa) = fa
+  let set-font-axes fa (ctx, fa) = (ctx, fa)
+
+  let get-font-size ectx =
+    get-context ectx
+    |> get-font-size
+
+  let set-font-size l ectx =
+    let ctx =
+      get-context ectx
+      |> set-font-size l
+    in
+    set-context ctx ectx
+
+  let to-string ectx =
+    `{size=` ^ show-float (get-font-size ectx /' 1pt)
+    ^ `;` ^ `fa=` ^ FontAxes.to-string (get-font-axes ectx) ^ `}`
+
+
+end
