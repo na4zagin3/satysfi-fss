@@ -1,15 +1,27 @@
 @import: axes
+@import: set
 
-type extended-context = context * font-axes
+type extended-context =
+  (| context : context ;
+     font-set : font-set ;
+     font-axes : font-axes ;
+  |)
 
-let extended-context-to-string (ctx, fa) =
-  `{size=` ^ show-float (get-font-size ctx /' 1pt)
-  ^ `;` ^ `fa=` ^ FontAxes.to-string fa ^ `}`
+type extended-context-non-standard =
+  (| font-set : font-set ;
+     font-axes : font-axes ;
+  |)
 
 module ExtendedContext : sig
 
+  val get-non-standard-context : extended-context -> extended-context-non-standard
+  val from-non-standard-context : extended-context-non-standard -> context -> extended-context
+
   val get-context : extended-context -> context
   val set-context : context -> extended-context -> extended-context
+
+  val get-font-set : extended-context -> font-set
+  val set-font-set : font-set -> extended-context -> extended-context
 
   val get-font-axes : extended-context -> font-axes
   val set-font-axes : font-axes -> extended-context -> extended-context
@@ -18,14 +30,28 @@ module ExtendedContext : sig
   val set-font-size : length -> extended-context -> extended-context
 
   val to-string : extended-context -> string
+  val to-string-for-font-selection : extended-context -> string
 
 end = struct
 
-  let get-context (ctx, fa) = ctx
-  let set-context ctx (_, fa) = (ctx, fa)
+  let get-non-standard-context ectx =
+    (| font-set = ectx#font-set ;
+       font-axes = ectx#font-axes ;
+    |)
+  let from-non-standard-context nsctx ctx =
+    (| context = ctx ;
+       font-set = nsctx#font-set ;
+       font-axes = nsctx#font-axes ;
+    |)
 
-  let get-font-axes (ctx, fa) = fa
-  let set-font-axes fa (ctx, fa) = (ctx, fa)
+  let get-context ectx = ectx#context
+  let set-context ctx ectx = (| ectx with context = ctx |)
+
+  let get-font-set ectx = ectx#font-set
+  let set-font-set fs ectx = (| ectx with font-set = fs |)
+
+  let get-font-axes ectx = ectx#font-axes
+  let set-font-axes fa ectx = (| ectx with font-axes = fa |)
 
   let get-font-size ectx =
     get-context ectx
@@ -40,7 +66,14 @@ end = struct
 
   let to-string ectx =
     `{size=` ^ show-float (get-font-size ectx /' 1pt)
-    ^ `;` ^ `fa=` ^ FontAxes.to-string (get-font-axes ectx) ^ `}`
+    ^ `;` ^ `font-axes=` ^ FontAxes.to-string (get-font-axes ectx)
+    ^ `;` ^ `font-set=` ^ FontSet.to-string (get-font-set ectx)
+    ^ `}`
+
+  let to-string-for-font-selection ectx =
+    `{size=` ^ show-float (get-font-size ectx /' 1pt)
+    ^ `;` ^ `font-axes=` ^ FontAxes.to-string (get-font-axes ectx)
+    ^ `}`
 
 
 end

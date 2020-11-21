@@ -5,6 +5,12 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
+### Added
+- Style keyword `font-set` to set a font set
+
+### Removed
+- `\font-set(<font-set>){ ... }` and `+font-set(<font-set>)< ... >` are removed in favor of 
+  `\font-style[font-set <font-set>]{ ... }` and `+font-style[font-set <font-set>]< ... >`.
 
 ## [0.1.0]
 ### Added

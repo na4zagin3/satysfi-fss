@@ -10,9 +10,6 @@ module Fss : sig
   val \text-font-combination : [font-combination; inline-text] inline-cmd
   val \text-font : [font-set; font-axes; inline-text] inline-cmd
 
-  direct \font-set : [font-set; inline-text] inline-cmd
-  direct +font-set : [font-set; block-text] block-cmd
-
   direct \font-style : [(extended-context -> extended-context) list; inline-text] inline-cmd
   direct +font-style : [(extended-context -> extended-context) list; block-text] block-cmd
 
@@ -51,40 +48,31 @@ end = struct
     in
     read-inline ctx it
 
-  let with-font font-set font-axes ctx =
+  let with-font ectx =
     let font-comb =
-      FontSelection.find-optimal-font font-set (ctx, font-axes)
+      FontSelection.find-optimal-font ectx
+    in
+    let ctx =
+      ExtendedContext.get-context ectx
     in
     let () = debug-font-combination 2 `with-font: ` font-comb in
     set-font-combination font-comb ctx
 
   let-inline ctx \text-font font-set font-axes it =
     let ctx =
-      ctx |> with-font font-set font-axes
+      let ectx =
+        (| context = ctx ;
+           font-set = font-set ;
+           font-axes = font-axes ;
+        |)
+      in
+      with-font ectx
     in
     read-inline ctx it
 
-  let with-font-set msg-context override ctx fs f =
-    let current-fs = FssMutableInternal.get-font-set ctx in
-    let fs =
-      if override
-      then fs
-      else FontSet.combine current-fs fs
-    in
-    FssMutableInternal.with-font-set ?:msg-context ctx fs (fun fs (ctx, fa) ->
-      (let ctx = with-font fs fa ctx in
-      f ctx)
-    )
-
-  let-inline ctx \font-set fs it =
-    with-font-set `\font-set` true ctx fs (fun ctx -> read-inline ctx it)
-
-  let-block ctx +font-set fs bt =
-    with-font-set `+font-set` true ctx fs (fun ctx -> read-block ctx bt)
-
   let with-font-style msg-context ctx ss f =
-    FssMutableInternal.with-font-style ?:msg-context ctx ss (fun fs (ctx, fa) ->
-      (let ctx = with-font fs fa ctx in
+    FssMutableInternal.with-font-style ?:msg-context ctx ss (fun ectx ->
+      (let ctx = with-font ectx in
       f ctx)
     )
 

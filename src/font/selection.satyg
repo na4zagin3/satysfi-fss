@@ -13,7 +13,7 @@
 
 module FontSelection : sig
 
-  val find-optimal-font : font-set -> extended-context -> font-combination
+  val find-optimal-font : extended-context -> font-combination
 
   val set-debug-level : int -> unit
 
@@ -145,7 +145,8 @@ end = struct
     | (_, _) -> Score.unit-disj
 
   let-rec font-selection-score cond ectx =
-    let (ctx, fa) = ectx in
+    let ctx = ExtendedContext.get-context ectx in
+    let fa = ExtendedContext.get-font-axes ectx in
     match cond with
     | And cs ->
       List.map (fun cond -> font-selection-score cond ectx) cs
@@ -225,7 +226,8 @@ end = struct
     in
     sub Set.empty []
 
-  let find-optimal-font font-set ectx =
+  let find-optimal-font ectx =
+    let font-set = ExtendedContext.get-font-set ectx in
     let warn-fuzzy-match (score, fp) =
       let () =
         if Score.(score == unit-conj)
@@ -240,7 +242,7 @@ end = struct
             ^ #`: fontset `#
             ^ FontSet.to-string font-set
             ^ #` axes `#
-            ^ FontAxes.extended-context-to-string ectx
+            ^ ExtendedContext.to-string-for-font-selection ectx
             )
         
       in

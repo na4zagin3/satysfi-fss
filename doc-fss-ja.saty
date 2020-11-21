@@ -142,7 +142,7 @@ document (|
        オプティカルサイズにも対応している。
     }
     +frame <
-      +font-set(bodoni-star-font-set)<
+      +font-style[font-set bodoni-star-font-set]<
         +p {
           \font-style[font-size 6pt]{6pt,}
           \font-style[font-size 11pt]{11pt,}
@@ -162,7 +162,7 @@ document (|
       >
     >
     +code(`
-      +font-set(bodoni-star-font-set)<
+      +font-style[font-set bodoni-star-font-set]<
         +p {
           \font-style[font-size 6pt]{6pt,}
           \font-style[font-size 11pt]{11pt,}
@@ -179,37 +179,14 @@ document (|
   >
   +section{文書作成者向け解説} <
     +p {
-      基本的なコマンドは、フォントセットを設定する\code(`font-set`);と
-      フォントスタイルを設定する\code(`font-style`);の二種類。
+      本パッケージは、スタイル変更キーワード群と
+      スタイル変更キーワードを適用する\code(`font-style`);コマンドを提供する。
     }
     +code (`
-      \font-set(フォントセット){インラインテキスト}
-      +font-set(フォントセット)<ブロックテキスト>
+      \font-style[キーワード; キーワード; ...]{インラインテキスト}
+      +font-style[キーワード; キーワード; ...]<ブロックテキスト>
     `);
-    +code (`
-      \font-style[スタイル; スタイル; ...]{インラインテキスト}
-      +font-style[スタイル; スタイル; ...]<ブロックテキスト>
-    `);
-    +subsection{フォントセット} <
-      +p {
-        \code(`font-set`);コマンドにより、引数のテキストに適用するフォントセットを変更することができる。
-        入れ子になった場合の動作は未定義である。
-      }
-      +p {
-        現バージョンで用意されているフォントセットは以下の一つのみ。
-      }
-      +listing {
-        * \code(`Fonts.default-font-set`);
-        (\code(`fss/fonts`);パッケージ)
-        \SATySFi;デフォルト文書クラスを摸したフォントセット。欧文にはJunicode (Regular, Bold, Italic, Bold Italic)を、和文
-        にはIPAexフォント（Medium Uprightスタイルでは\code(`ipaexm`);、
-        Bold乃至Italicスタイルでは\code(`ipaexg`);）が用いられる。
-      }
-    >
     +subsection{フォントスタイル} <
-      +p {
-        \code(`font-style`);コマンドにより、引数のテキストに適用するフォントスタイルを変更することができる。
-      }
       +p {
         フォントスタイルは大きさ・幅・太さ等の軸によりなっており、各軸を独立に変更することができる。
       }
@@ -250,6 +227,35 @@ document (|
       ** \code(`upright : style`); 立体に設定
       ** \code(`italic : style`); イタリック体に設定
     }
+    +subsection{フォントセット} <
+      +p {
+        フォントセットは、フォントスタイルの各軸により張られる空間から実際のフォントへの写像である。
+        \code(`font-set`);キーワードにより適用するフォントセットを変更することができる。
+      }
+      +p {
+        \SATySFi; 0.0.5用の現バージョンにおいては、各フォントセットには対応書字体系が設定されており、
+        \code(`font-set`);キーワードは書字体系毎にフォントを上書きする。
+      }
+      +p {
+        現バージョンで用意されているフォントセットを以下に示す。
+      }
+      +listing {
+        * \code(`Fonts.default-font-set`);
+        (\code(`fss/fonts`);パッケージ)
+        \SATySFi;デフォルト文書クラスを摸したフォントセット。欧文にはJunicode (Regular, Bold, Italic, Bold Italic)を、和文
+        にはIPAexフォント（Medium Uprightスタイルでは\code(`ipaexm`);、
+        Bold乃至Italicスタイルでは\code(`ipaexg`);）が用いられる。
+        * \code(`Fonts.default-font-set-ja`);
+        (\code(`fss/fonts`);パッケージ)
+        \code(`Fonts.default-font-set`);の和文部分のみ。
+        * \code(`Fonts.default-font-set-la`);
+        (\code(`fss/fonts`);パッケージ)
+        \code(`Fonts.default-font-set`);の欧文部分のみ。
+        * \code(`bodoni-star-font-set`);
+        (\code(`fss-fontset-bodoni-star/fontset`);パッケージ)
+        オプティカルサイズフォントであるBodoni\*用の欧文フォントセット。
+      }
+    >
     +subsection{上手く行かない時} <
       +p {
         文書の先頭で\code(`Fss.set-debug-level`);を設定すると、詳細なログが残るようになる。ログレベルが大きい程ログが詳細になる。
@@ -285,27 +291,12 @@ document (|
         実現した暁にはフォントセットとフォントスタイルもコンテキストに格納されるべきである。
       }
     >
-    +subsection{\code(`font-set`);と\code(`font-style`);の入れ子の挙動の違い} <
-      +p {
-        現在、\code(`font-set`);はフォントセットを上書きするが、
-        \code(`font-style`);はフォントスタイルの一部のみを更新する。
-        この二つの動作の差は混乱を招きかねない。
-      }
-    >
-    +subsection{多言語組版と\code(`font-set`);} <
+    +subsection{多言語組版} <
       +p {
         \SATySFi;は書記体系毎にフォントを自動で切替する機能があり、これとフォントセットを整合的に定義するのは自明ではない。
       }
       +p {
         また、言語切替もffsパッケージが認知しなければならない。
-      }
-    >
-    +subsection{オプティカルサイズフォント} <
-      +p {
-        オプティカルサイズフォントに対応するには、サイズの指定をfssパッケージ側で行う必要がある。
-      }
-      +p {
-        次バージョンで実装予定ではあるが、言語切替やフォントサイズ切替をフックする機能が\SATySFi;側にあっても良い気がする。
       }
     >
     +subsection{フォールバック} <

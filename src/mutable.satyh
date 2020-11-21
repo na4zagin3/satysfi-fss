@@ -7,8 +7,7 @@
 
 module FssMutableInternal : sig
 
-  val with-font-set : string ?-> context -> font-set -> (font-set -> extended-context -> 'a) -> 'a
-  val with-font-style : string ?-> context -> (extended-context -> extended-context) list -> (font-set -> extended-context -> 'a) -> 'a
+  val with-font-style : string ?-> context -> (extended-context -> extended-context) list -> (extended-context -> 'a) -> 'a
 
   val get-font-set : context -> font-set
 
@@ -16,8 +15,10 @@ module FssMutableInternal : sig
 
 end = struct
 
-  let-mutable current-font-set <- Fonts.default-font-set
-  let-mutable current-font-axes <- Fonts.default-font-axes
+  let-mutable current-non-standard-context <-
+    (| font-set = Fonts.default-font-set ;
+       font-axes = Fonts.default-font-axes ;
+    |)
 
   let-mutable current-debug-level <- 0
   let set-debug-level level =
@@ -28,27 +29,20 @@ end = struct
     then display-message (`fss/mutable: `# ^ context ^ `: `# ^ message)
     else ()
 
-  let update-font-axes f =
-    let fa = f !current-font-axes in
-    current-font-axes <- fa
+  let get-current-extended-context ctx =
+    ExtendedContext.from-non-standard-context
+      !current-non-standard-context
+      ctx
 
   let get-font-set ctx =
-    !current-font-set
-
-  let with-font-set ?:context ctx fs f =
-    let context = Option.unwrap-or `with-font-set` context in
-    let previous-fs = !current-font-set in
-    let () = current-font-set <- fs in
-    let fa = !current-font-axes in
-    let () = debug-message 1 context (FontSet.to-string previous-fs ^ #` -> `# ^ FontSet.to-string fs) in
-    let result = f fs (ctx, fa) in
-    let () = current-font-set <- previous-fs in
-    result
+    get-current-extended-context ctx
+    |> ExtendedContext.get-font-set
 
   let with-font-style ?:context (previous-ctx) ss f =
     let context = Option.unwrap-or `with-style` context in
-    let previous-fa = !current-font-axes in
-    let previous-ectx = (previous-ctx, previous-fa) in
+    let previous-ectx = 
+      get-current-extended-context previous-ctx
+    in
     let ectx = List.fold-left (fun ectx s -> s ectx) previous-ectx ss in
     let () = debug-message
         1
@@ -56,10 +50,11 @@ end = struct
         (ExtendedContext.to-string previous-ectx
         ^ #` -> `#
         ^ ExtendedContext.to-string ectx) in
-    let () = current-font-axes <- ExtendedContext.get-font-axes ectx in
-    let fs = !current-font-set in
-    let result = f fs ectx in
-    let () = current-font-axes <- previous-fa in
+    let () = current-non-standard-context <-
+        ExtendedContext.get-non-standard-context ectx in
+    let result = f ectx in
+    let () = current-non-standard-context <-
+        ExtendedContext.get-non-standard-context previous-ectx in
     result
 
 end
