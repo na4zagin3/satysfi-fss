@@ -7,6 +7,16 @@
   (opam "satysfi-fss.opam")
   (dependencies ((base ())
                  (fonts-junicode ()))))
+
+(library
+  (name "fss-fontset-bodoni-star")
+  (version "2.3")
+  (sources
+    ((package "fontset.satyg" "./fss-fontset-bodoni-star.satyg")))
+  (opam "satysfi-fss-fontset-bodoni-star.opam")
+  (dependencies ((fss ())
+                 (fonts-bodoni-star ()))))
+
 (libraryDoc
   (name "fss-doc")
   (version "0.1")
@@ -15,4 +25,5 @@
   (sources
     ((doc "doc-fss-ja.pdf" "./doc-fss-ja.pdf")))
   (opam "satysfi-fss-doc.opam")
-  (dependencies ((fss ()))))
+  (dependencies ((fss ())
+                 (fss-fontset-bodoni-star ()))))

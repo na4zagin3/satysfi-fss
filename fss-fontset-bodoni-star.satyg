@@ -1,0 +1,160 @@
+@require: fss/font/axes
+@require: fss/font/selection-cond
+@require: fss/font/set
+
+
+% val bodoni-star-font-set : font-set
+
+let bodoni-star-font-set : font-set =
+  let latin-font-pairs name =
+    [(| script = FontScript.latn ;
+        font = (|
+          font-name = name ;
+          ratio = 1.0 ;
+          rising = 0.0 ;
+        |) ;
+    |);
+    (| script = FontScript.other ;
+        font = (|
+          font-name = name ;
+          ratio = 1.0 ;
+          rising = 0.0 ;
+        |) ;
+    |);
+    ]
+  in
+
+  let bodoni-star-font-comb name conf =
+    let cond =
+      FontSelectionCond.of-simple-config conf
+    in
+    let pairs =
+      [(| script = FontScript.latn ;
+          font = (|
+            font-name = name ;
+            ratio = 1.0 ;
+            rising = 0.0 ;
+          |) ;
+      |);
+      (| script = FontScript.other ;
+          font = (|
+            font-name = name ;
+            ratio = 1.0 ;
+            rising = 0.0 ;
+          |) ;
+      |);
+      ]
+    in
+    (cond, pairs)
+  in
+
+  let bold size-str size =
+    bodoni-star-font-comb
+      (`fonts-bodoni-star:Bodoni-` ^ size-str ^ `-Bold`)
+      (| font-size = Some size ;
+        width = 100 ;
+        weight = 200. ;
+        slant = 0 ;
+        style = FontStyle.parse `Bold` ;
+      |)
+  in
+  let bold-italic size-str size =
+    bodoni-star-font-comb
+      (`fonts-bodoni-star:Bodoni-` ^ size-str ^ `-Bold-Italic`)
+      (| font-size = Some size ;
+        width = 100 ;
+        weight = 200. ;
+        slant = 100 ;
+        style = FontStyle.parse `Bold Italic` ;
+      |)
+  in
+  let book size-str size =
+    bodoni-star-font-comb
+      (`fonts-bodoni-star:Bodoni-` ^ size-str ^ `-Book`)
+      (| font-size = Some size ;
+        width = 100 ;
+        weight = 80. ;
+        slant = 0 ;
+        style = FontStyle.parse `Regular` ;
+      |)
+  in
+  let book-italic size-str size =
+    bodoni-star-font-comb
+      (`fonts-bodoni-star:Bodoni-` ^ size-str ^ `-Book-Italic`)
+      (| font-size = Some size ;
+        width = 100 ;
+        weight = 80. ;
+        slant = 100 ;
+        style = FontStyle.parse `Italic` ;
+      |)
+  in
+  let fatface size-str size =
+    bodoni-star-font-comb
+      (`fonts-bodoni-star:Bodoni-` ^ size-str ^ `-Fatface`)
+      (| font-size = Some size ;
+        width = 100 ;
+        weight =210. ;
+        slant = 0 ;
+        style = FontStyle.parse `Regular` ;
+      |)
+  in
+  let fatface-italic size-str size =
+    bodoni-star-font-comb
+      (`fonts-bodoni-star:Bodoni-` ^ size-str ^ `-Fatface-Italic`)
+      (| font-size = Some size ;
+        width = 100 ;
+        weight =210. ;
+        slant = 100 ;
+        style = FontStyle.parse `Italic` ;
+      |)
+  in
+  let medium size-str size =
+    bodoni-star-font-comb
+      (`fonts-bodoni-star:Bodoni-` ^ size-str ^ `-Fatface`)
+      (| font-size = Some size ;
+        width = 100 ;
+        weight =100. ;
+        slant = 0 ;
+        style = FontStyle.parse `Regular` ;
+      |)
+  in
+  let medium-italic size-str size =
+    bodoni-star-font-comb
+      (`fonts-bodoni-star:Bodoni-` ^ size-str ^ `-Fatface-Italic`)
+      (| font-size = Some size ;
+        width = 100 ;
+        weight =100. ;
+        slant = 100 ;
+        style = FontStyle.parse `Italic` ;
+      |)
+  in
+  let bodoni-star size-str size =
+    List.map (fun f -> f size-str size)
+      [
+        bold;
+        bold-italic;
+        book;
+        book-italic;
+        fatface;
+        fatface-italic;
+        medium;
+        medium-italic;
+      ]
+  in
+  (| default-font = latin-font-pairs `fonts-bodoni-star:Bodoni-06-Bold`;
+    conditional-fonts =
+      [ 
+        bodoni-star `06` 6pt;
+        bodoni-star `11` 11pt;
+        bodoni-star `16` 16pt;
+        bodoni-star `24` 24pt;
+        bodoni-star `36` 36pt;
+        bodoni-star `48` 48pt;
+        bodoni-star `72` 72pt;
+      ]
+      |> List.concat;
+    covered-area = Set.of-list [
+        FontScript.latn ;
+        FontScript.other ;
+      ];
+  |)

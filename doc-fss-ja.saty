@@ -4,8 +4,7 @@
 @require: fss/fss
 @require: fss/fonts
 @require: fss/style
-
-let () = Fss.set-debug-level 100
+@require: fss-fontset-bodoni-star/fontset
 
 let-block ctx +frame content =
   let pads = (10pt, 10pt, 10pt, 10pt) in
@@ -16,9 +15,9 @@ let-block ctx +display-boxes content code =
   read-block (ctx |> set-paragraph-margin 12pt 0pt) '<+frame(content);>
     +++ read-block (ctx |> set-paragraph-margin 0pt 12pt) '<+code(code);>
 
-in
-
-let () = Fss.set-debug-level 100
+%in
+%
+%let () = Fss.set-debug-level 100
 in
 
 document (|
@@ -88,7 +87,7 @@ document (|
             }
             bold italic,
           }
-          bold
+          bold,
         }
         regular
       }
@@ -136,6 +135,44 @@ document (|
             italic,
           }
           bold
+        }
+      >
+    `);
+    +p {
+       オプティカルサイズにも対応している。
+    }
+    +frame <
+      +font-set(bodoni-star-font-set)<
+        +p {
+          \font-style[font-size 6pt]{6pt,}
+          \font-style[font-size 11pt]{11pt,}
+          \font-style[font-size 16pt]{16pt,}
+          \font-style[font-size 24pt]{24pt,}
+          \font-style[font-size 36pt]{36pt
+            \font-style[italic]{italic,}
+          }
+          \font-style[font-size 48pt]{48pt
+            \font-style[bold; italic]{bold italic,}
+          }
+          \font-style[font-size 72pt]{
+            72pt
+            \font-style[bold]{bold.}
+          }
+        }
+      >
+    >
+    +code(`
+      +font-set(bodoni-star-font-set)<
+        +p {
+          \font-style[font-size 6pt]{6pt,}
+          \font-style[font-size 11pt]{11pt,}
+          \font-style[font-size 16pt]{16pt,}
+          \font-style[font-size 24pt]{24pt,}
+          \font-style[font-size 36pt]{36pt \font-style[italic]{italic,}}
+          \font-style[font-size 48pt]{48pt
+            \font-style[bold; italic]{bold italic,}}
+          \font-style[font-size 72pt]{72pt \font-style[bold]{bold.}
+          }
         }
       >
     `);
