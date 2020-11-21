@@ -92,11 +92,17 @@ end = struct
   end
 
 
-  let debug-font-combination level context font-comb =
+  let log-message level context message =
     if !current-debug-level >= level
     then
-      display-message (module-name ^ `: `# ^ context ^ `: `# ^ FontCombination.to-string font-comb)
+      display-message (module-name ^ `: `# ^ context ^ `: `# ^ message)
     else ()
+
+  let debug-font-combination level context font-comb =
+    log-message level context (FontCombination.to-string font-comb)
+
+  let info-font-combination context font-comb =
+    debug-font-combination 0 context font-comb
 
   let font-selection-score-style cond target =
     let width-score =
@@ -189,10 +195,11 @@ end = struct
             font
         in
         font
+        |> List.map (fun fp ->
+          (score, fp))
       in
       let calc-score (cond, font) =
         let score = score-f cond in
-        let () = debug-font-combination 2 (`sort-by-score-desc: calc (` ^ show-float score ^ `)`) font in
         if Score.is-truthy score
         then Some (score, font)
         else None
@@ -205,15 +212,47 @@ end = struct
     in
     ses
 
-  let sort-fonts-by-font-desc font-set ectx =
+  let normalize-font-comb =
+    let-rec sub set acc fps =
+      match fps with
+      | [] -> List.reverse acc
+      | (score, fp) :: fps ->
+        if FontScript.set-mem fp#script set
+        then sub set acc fps
+        else
+          let set = Set.insert fp#script set in
+          sub set ((score, fp) :: acc) fps
+    in
+    sub Set.empty []
+
+  let find-optimal-font font-set ectx =
+    let warn-fuzzy-match (score, fp) =
+      let () =
+        if Score.(score == unit-conj)
+        then ()
+        else
+          log-message
+            (-1)
+            `find-optimal-font`
+            (`Not perfect match: `#
+            ^ FontCombination.font-combination-pair-to-string fp
+            ^ #` (score `# ^ show-float score ^ `)`
+            ^ #`: fontset `#
+            ^ FontSet.to-string font-set
+            ^ #` axes `#
+            ^ FontAxes.extended-context-to-string ectx
+            )
+        
+      in
+      fp
+    in
     sort-by-score-desc
       (fun cond -> font-selection-score cond ectx)
       font-set#conditional-fonts
-    |> List.append font-set#default-font
+    |> List.append (List.map (fun fp -> (Score.unit-disj, fp)) font-set#default-font)
     |> List.reverse
-
-  let find-optimal-font font-set ectx =
     % TODO Optimize font-combination to reduce invocations of set-font
-    sort-fonts-by-font-desc font-set ectx
+    |> normalize-font-comb
+    |> List.map warn-fuzzy-match
 
 end

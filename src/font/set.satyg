@@ -21,25 +21,13 @@ end = struct
 
   let to-string fs = `<font-set>`
 
-  let set-diff a b =
-    let eq = FontScript.eq in
-    List.fold-left (fun acc x ->
-      Set.remove eq x acc)
-      a
-      (Set.to-list eq b)
-
-  let set-union a b =
-    let eq = FontScript.eq in
-    List.append (Set.to-list eq a) (Set.to-list eq b)
-    |> Set.of-list
-
   let combine base override =
     let area-to-be-removed =
-      set-diff base#covered-area override#covered-area
+      FontScript.set-diff base#covered-area override#covered-area
     in
     let filter-font-pair : font-combination -> font-combination =
       List.filter (fun fp ->
-        Set.mem FontScript.eq fp#script area-to-be-removed)
+        FontScript.set-mem fp#script area-to-be-removed)
     in
     let base-default-font =
       filter-font-pair base#default-font
@@ -54,7 +42,7 @@ end = struct
       conditional-fonts =
         List.append base-conditional-fonts override#conditional-fonts;
       covered-area =
-        set-union base#covered-area override#covered-area;
+        FontScript.set-union base#covered-area override#covered-area;
     |)
 
 end

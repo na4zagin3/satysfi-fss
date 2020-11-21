@@ -10,6 +10,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 - Style keywords `font-size` and `with-font-size`
 
+### Changed
+- Semantics of commands nested `+font-set` and `\font-set` are now undefined
+
 ## [0.0.1]
 ### Added
 - Basic functionalities as a font selection scheme
