@@ -1,0 +1,56 @@
+@require: base/option-ext
+@require: base/string
+
+@require: fss/style
+
+@import: util/byte-string
+@import: util/set
+
+type style-class = ByteString.t
+
+module Sss : sig
+
+  val declare-style-class : string -> style-class
+  val string-to-style-class : string -> style-class
+
+  val register-style-rule : style-class -> style -> unit
+
+  val get-style-for-class : style-class -> style
+
+end = struct
+
+  let-mutable current-style-classes <- TreeSet.empty ByteString.ord
+  let-mutable current-style-rules <- Map.empty ByteString.ord
+
+  let declare-style-class name =
+    let class =
+      ByteString.of-ascii-string-opt name
+      |> Option.expect (`Class name shold be an ASCII string but got `# ^ name)
+    in
+    let () =
+      current-style-classes <- TreeSet.insert class !current-style-classes
+    in
+    class
+
+  let string-to-style-class name =
+    let class =
+      ByteString.of-ascii-string-opt name
+      |> Option.expect (`Class name shold be an ASCII string but got `# ^ name)
+    in
+    if TreeSet.mem class !current-style-classes
+    then class
+    else abort-with-message (`Style class `# ^ name ^ #` is not defined`)
+
+  let register-style-rule class style =
+    current-style-rules <-
+      Map.insert-override class style !current-style-rules
+
+  let get-style-for-class class =
+    match Map.find class !current-style-rules with
+    | None -> fun x -> x
+    | Some style -> style
+
+end
+
+let style-class =
+  Sss.get-style-for-class

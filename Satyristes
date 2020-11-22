@@ -1,4 +1,5 @@
 (version "0.0.2")
+
 (library
   (name "fss")
   (version "0.1")
@@ -27,3 +28,24 @@
   (opam "satysfi-fss-doc.opam")
   (dependencies ((fss ())
                  (fss-fontset-bodoni-star ()))))
+
+(library
+  (name "sss")
+  (version "0.1")
+  (sources
+    ((packageDir "src/sss")))
+  (opam "satysfi-sss.opam")
+  (dependencies ((base ())
+                 (fss ()))))
+
+(libraryDoc
+  (name "sss-doc")
+  (version "0.1")
+  (build
+    ((satysfi "doc-sss.ja.saty" "-o" "doc-sss.ja.pdf")))
+  (sources
+    ((doc "doc-sss.ja.pdf" "./doc-sss.ja.pdf")))
+  (opam "satysfi-sss-doc.opam")
+  (dependencies ((fss ())
+                 (fss-fontset-bodoni-star ())
+                 (sss ()))))

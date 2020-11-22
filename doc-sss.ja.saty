@@ -1,0 +1,147 @@
+@require: stdjabook
+@require: code
+@require: itemize
+@require: fss/fss
+@require: fss/fonts
+@require: fss/style
+@require: fss-fontset-bodoni-star/fontset
+@require: sss/sss
+
+let-block ctx +frame content =
+  let pads = (10pt, 10pt, 10pt, 10pt) in
+  let decoset = VDecoSet.simple-frame-stroke 1pt (Color.gray 0.75) in
+    block-frame-breakable ctx pads decoset (fun ctx -> read-block ctx content)
+
+let-block ctx +display-boxes content code =
+  read-block (ctx |> set-paragraph-margin 12pt 0pt) '<+frame(content);>
+    +++ read-block (ctx |> set-paragraph-margin 0pt 12pt) '<+code(code);>
+
+% Declare style classes
+let main-text =
+  Sss.declare-style-class `main-text`
+let header-paragraph =
+  Sss.declare-style-class `header:paragraph`
+
+% Register style rules
+let () =
+  Sss.register-style-rule main-text 
+    Style.(concat [
+        font-set bodoni-star-font-set;
+        font-size 16pt;
+      ])
+let () =
+  Sss.register-style-rule
+    (Sss.string-to-style-class `header:paragraph`)
+    Style.(bold)
+
+in
+
+document (|
+  title = {sss (Simple Style Scheme)};
+  author = {\code(`@na4zagin3`);};
+  show-title = true;
+  show-toc = false;
+|) '<
+  +p {
+    \font-style[style-class header-paragraph]{概要}
+    本ライブラリは`fss`ライブラリを用いた書式のカスタマイズを統一的に行えるようにするものである。
+  }
+  +p {
+    \font-style[style-class header-paragraph]{警告}
+    まだ実験段階のパッケージであり、APIが大きく変更されるおそれがある。
+  }
+  +p {
+    本ライブラリは書式の適用を、書式クラスの宣言、書式クラスに対する書式の設定、書式クラスの適用の三段階に分割する。
+  }
+  +section{書式クラスの宣言} <
+    +p {
+      `Sss.declare-style-class : string -> style-class`により、書式クラスを宣言する。
+    }
+    +code (```
+      let main-text =
+        Sss.declare-style-class `main-text`
+    ```);
+  >
+  +section{書式クラスに対する書式規則の設定} <
+    +p {
+      `Sss.register-style-rule : style-class -> style -> unit`により、書式クラスに適用すべき書式規則を設定する。
+      書式については、`fss`ライブラリのドキュメントを見よ。
+    }
+    +p {
+      実装の都合上、`Sss.register-style-rule`による変更は大域的に影響する。
+      トップレベルのみで呼ぶべきである。
+    }
+    +p {
+      `Sss.register-style-rule`を二回以上呼んだ場合には、最後のもので上書きされる。
+    }
+    +code (`
+      let () =
+        Sss.register-style-rule
+          main-text 
+          Style.(concat [
+              font-set bodoni-star-font-set;
+              font-size 16pt;
+            ])
+    `);
+    +p {
+      書式クラスの宣言と
+      書式クラスに対する書式規則の設定をどうしても分離せざるをえない場合には、`Sss.string-to-style-class : string -> style-class`により、
+      与えられた名前を持つ書式クラスを得ることができる。
+    }
+    +code (```
+      let () =
+        Sss.register-style-rule
+          (Sss.string-to-style-class `main-text`)
+          Style.(concat [
+              font-set bodoni-star-font-set;
+              font-size 16pt;
+            ])
+    ```);
+  >
+  +section{書式クラスの適用} <
+    +p {
+      `Sss.get-style-for-class : style-class -> style`又は`style-class : style-class -> style`を用いて、
+      書式クラスに設定されている書式を適用することができる。
+    }
+    +frame <
+      +p {
+        outer text.
+        \font-style[style-class main-text]{
+          main text style.
+        }
+        outer text.
+      }
+    >
+    +code(`
+      +p {
+        outer text.
+        \font-style[style-class main-text]{
+          main text style.
+        }
+        outer text.
+      }
+    `);
+  >
+  +section{課題} <
+    +subsection{書式クラスに対する書式規則の登録の局限} <
+      +p {
+        実装の都合上、書式クラスに対する書式規則は大域可変変数に格納されている。
+        \SATySFi; Confでgfnさんが発表されていたように、コンテキストを拡張可能にする計画があり、
+        実現した暁にはこれはコンテキストに格納されるべきである。
+      }
+    >
+    +subsection{書式規則マッチ式} <
+      +p {
+        現在は書式クラスの完全一致により、書式規則の適用可否を判断している。
+        CSSセレクタのようなものを導入すると便利になることもあるかもしれない。
+      }
+    >
+    +subsection{書式規則上書き} <
+      +p {
+        前項とも関聯するが、同一の書式クラスに対して書式規則を設定しようとした時に、
+        新しいもので上書きするのではなく、
+        新旧両者をマージした方が嬉しいかもしれない。
+      }
+    >
+  >
+>

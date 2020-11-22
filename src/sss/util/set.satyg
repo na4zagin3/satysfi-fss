@@ -1,0 +1,34 @@
+@require: base/base
+@require: base/ord
+@require: base/option-ext
+
+@import: map
+
+module TreeSet : sig
+
+  type 'k t
+
+  val empty : ('k Ord.t) implicit -> 'k t
+
+  val insert : 'k -> 'k t -> 'k t
+  val remove : 'k -> 'k t -> 'k t
+
+  val mem : 'k -> 'k t -> bool
+
+end = struct
+
+  type 'k t = 'k unit Map.t
+
+  let empty ord =
+    Map.empty ord
+
+  let insert k s =
+    Map.insert-override k () s
+
+  let remove k s =
+    Map.remove k s
+
+  let mem k s =
+    Map.mem k s
+
+end

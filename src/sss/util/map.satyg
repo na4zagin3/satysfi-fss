@@ -1,0 +1,86 @@
+@require: base/base
+@require: base/list-ext
+@require: base/ord
+@require: base/option-ext
+@require: base/string
+
+% TODO Implement with a tree
+module Map : sig
+
+  type 'k 'v t
+
+  val empty : ('k Ord.t) implicit -> 'k 'v t
+
+  val insert-with : ('v -> 'v -> 'v) -> 'k -> 'v -> 'k 'v t -> 'k 'v t
+  val insert-override : 'k -> 'v -> 'k 'v t -> 'k 'v t
+  val remove : 'k -> 'k 'v t -> 'k 'v t
+
+  val find :  'k -> 'k 'v t -> 'v option
+  val mem : 'k -> 'k 'v t -> bool
+
+  val to-alist : 'k 'v t -> ('k * 'v) list
+  val of-alist-override : ('k Ord.t) implicit -> ('k * 'v) list -> 'k 'v t
+
+end = struct
+
+  type 'k 'v t =
+    (|
+      ord : ('k Ord.t) implicit ;
+      content : ('k * 'v) list ;
+    |)
+
+  let empty ord =
+    (|
+      ord = ord ;
+      content = [] ;
+    |)
+
+  let remove key m =
+    (|
+      m with
+      content =
+        List.filter (fun (k, v) ->
+          not (Ord.eq m#ord k key))
+          m#content
+    |)
+
+  let find key m =
+    let f (k, v) =
+      Ord.eq m#ord k key
+    in
+    List.find f m#content
+    |> Option.map (fun (_, v) -> v)
+
+  let mem key m =
+    find key m
+    |> Option.is-some
+
+  let insert-non-overlap key v m =
+    (|
+      m with
+      content = (key, v) :: m#content ;
+    |)
+
+  let insert-with f key v m =
+    match find key m with
+    | None ->
+      insert-non-overlap key v m
+    | Some v-existing ->
+      let v = f v-existing v in
+      m
+      |> remove key
+      |> insert-non-overlap key v
+
+  let insert-override key v m =
+    insert-with (fun _ v -> v) key v m
+
+  let to-alist m =
+    m#content
+
+  let of-alist-override ord vs =
+    List.fold-left (fun m (k, v) ->
+      insert-override k v m)
+      (empty ord)
+      vs
+
+end

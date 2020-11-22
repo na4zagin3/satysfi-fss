@@ -1,0 +1,54 @@
+@require: base/base
+@require: base/int
+@require: base/ord
+@require: base/option-ext
+
+module ByteString : sig
+
+  type t
+
+  val of-ascii-string-opt : string -> t option
+  val to-string : t -> string
+
+  val eq : t Eq.t
+  val ord : t Ord.t
+
+  val compare : t -> t -> ordering
+
+end = struct
+
+  type t = int list
+
+  let of-ascii-string-opt x =
+    let exploded = string-explode x in
+    let is-valid =
+      exploded
+      |> List.all (fun c -> c < 0x80)
+    in
+    if is-valid
+    then Some exploded
+    else None
+
+  let to-string x =
+    string-unexplode x
+
+  let-rec list-compare ord xs ys =
+    match (xs, ys) with
+    | ([], []) -> Eq
+    | ([], _ :: _) -> Lt
+    | (_ :: _, []) -> Gt
+    | (x :: xs, y :: ys) ->
+      (match Ord.compare ord x y with
+      | Eq -> list-compare ord xs ys
+      | o -> o)
+
+  let compare =
+    list-compare Int.ord
+
+  let ord =
+    Ord.make compare
+
+  let eq = Ord.derive-eq ord
+
+
+end
