@@ -3,7 +3,7 @@
   (name "fss")
   (version "0.1")
   (sources
-    ((packageDir "src")))
+    ((packageDir "src/fss")))
   (opam "satysfi-fss.opam")
   (dependencies ((base ())
                  (fonts-junicode ()))))
@@ -12,7 +12,7 @@
   (name "fss-fontset-bodoni-star")
   (version "2.3")
   (sources
-    ((package "fontset.satyg" "./fss-fontset-bodoni-star.satyg")))
+    ((packageDir "src/fss-fontset-bodoni-star")))
   (opam "satysfi-fss-fontset-bodoni-star.opam")
   (dependencies ((fss ())
                  (fonts-bodoni-star ()))))
