@@ -1,0 +1,15 @@
+@import: font/axes
+@import: font/context
+
+type style = extended-context -> extended-context
+
+module Style : sig
+
+  val concat : style list -> style
+
+end = struct
+
+  let concat ss ectx =
+    List.fold-left (fun ectx s -> s ectx) ectx ss
+
+end
