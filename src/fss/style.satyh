@@ -16,7 +16,12 @@ module Style : sig
 
   val font-set : font-set -> style
 
+  val concat : style list -> style
+
 end = struct
+
+  let concat ss ectx =
+    List.fold-left (fun ectx s -> s ectx) ectx ss
 
   let bold ectx =
     let fa = ExtendedContext.get-font-axes ectx in
