@@ -49,3 +49,13 @@
   (dependencies ((fss ())
                  (fss-fontset-bodoni-star ())
                  (sss ()))))
+
+(library
+  (name "class-nzla")
+  (version "0.1")
+  (sources
+    ((packageDir "src/class-nzla")))
+  (opam "satysfi-class-nzla.opam")
+  (dependencies ((base ())
+                 (fss ())
+                 (sss ()))))
