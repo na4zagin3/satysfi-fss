@@ -10,6 +10,7 @@ module Fss : sig
   val \text-font-combination : [font-combination; inline-text] inline-cmd
   val \text-font : [font-set; font-axes; inline-text] inline-cmd
 
+  val with-font-style : string?-> context -> (extended-context -> extended-context) list -> (context -> 'a) -> 'a
   direct \font-style : [(extended-context -> extended-context) list; inline-text] inline-cmd
   direct +font-style : [(extended-context -> extended-context) list; block-text] block-cmd
 
@@ -70,16 +71,23 @@ end = struct
     in
     read-inline ctx it
 
-  let with-font-style msg-context ctx ss f =
-    FssMutableInternal.with-font-style ?:msg-context ctx ss (fun ectx ->
-      (let ctx = with-font ectx in
-      f ctx)
-    )
+  let with-font-style ?:msg-context ctx ss f =
+    match msg-context with
+    | None ->
+      FssMutableInternal.with-font-style ?* ctx ss (fun ectx ->
+        (let ctx = with-font ectx in
+        f ctx)
+      )
+    | Some msg-context ->
+      FssMutableInternal.with-font-style ?:msg-context ctx ss (fun ectx ->
+        (let ctx = with-font ectx in
+        f ctx)
+      )
 
   let-inline ctx \font-style ss it =
-    with-font-style `\font-style` ctx ss (fun ctx -> read-inline ctx it)
+    with-font-style ?:`\font-style` ctx ss (fun ctx -> read-inline ctx it)
 
   let-block ctx +font-style ss it =
-    with-font-style `+font-style` ctx ss (fun ctx -> read-block ctx it)
+    with-font-style ?:`+font-style` ctx ss (fun ctx -> read-block ctx it)
 
 end
