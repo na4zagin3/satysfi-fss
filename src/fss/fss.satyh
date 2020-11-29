@@ -7,12 +7,12 @@
 
 module Fss : sig
 
-  val \text-font-combination : [font-combination; inline-text] inline-cmd
-  val \text-font : [font-set; font-axes; inline-text] inline-cmd
+  val \text-font-combination : [fss-font-combination; inline-text] inline-cmd
+  val \text-font : [fss-font-set; fss-font-axes; inline-text] inline-cmd
 
-  val with-font-style : string?-> context -> (extended-context -> extended-context) list -> (context -> 'a) -> 'a
-  direct \font-style : [(extended-context -> extended-context) list; inline-text] inline-cmd
-  direct +font-style : [(extended-context -> extended-context) list; block-text] block-cmd
+  val with-font-style : string?-> context -> (fss-extended-context -> fss-extended-context) list -> (context -> 'a) -> 'a
+  direct \font-style : [(fss-extended-context -> fss-extended-context) list; inline-text] inline-cmd
+  direct +font-style : [(fss-extended-context -> fss-extended-context) list; block-text] block-cmd
 
   val set-debug-level : int -> unit
 
@@ -23,14 +23,14 @@ end = struct
   let-mutable current-debug-level <- 0
 
   let set-debug-level level =
-    let () = FontSelection.set-debug-level level in
+    let () = FssFontSelection.set-debug-level level in
     let () = FssMutableInternal.set-debug-level level in
     current-debug-level <- level
 
   let debug-font-combination level context font-comb =
     if !current-debug-level >= level
     then
-      display-message (module-name ^ `: `# ^ context ^ `: `# ^ FontCombination.to-string font-comb)
+      display-message (module-name ^ `: `# ^ context ^ `: `# ^ FssFontCombination.to-string font-comb)
     else ()
 
 
@@ -41,7 +41,7 @@ end = struct
       let font-triple =
         (font-pair#font#font-name, font-pair#font#ratio, font-pair#font#rising)
       in
-      set-font (FontScript.to-satysfi-script font-pair#script) font-triple (set-font-combination font-comb ctx)
+      set-font (FssFontScript.to-satysfi-script font-pair#script) font-triple (set-font-combination font-comb ctx)
 
   let-inline ctx \text-font-combination font-comb it =
     let ctx =
@@ -51,10 +51,10 @@ end = struct
 
   let with-font ectx =
     let font-comb =
-      FontSelection.find-optimal-font ectx
+      FssFontSelection.find-optimal-font ectx
     in
     let ctx =
-      ExtendedContext.get-context ectx
+      FssExtendedContext.get-context ectx
     in
     let () = debug-font-combination 2 `with-font: ` font-comb in
     set-font-combination font-comb ctx

@@ -1,36 +1,36 @@
 @import: axes
 @import: style
 
-type font-selection-length-field =
+type fss-font-selection-length-field =
   | FontSize
 
-type font-selection-float-field =
+type fss-font-selection-float-field =
   | Weight
 
-type font-selection-int-field =
+type fss-font-selection-int-field =
   | Width
   | Slant
 
-type font-selection-cond =
-  | LengthSingle of font-selection-length-field * length
-  | FloatSingle of font-selection-float-field * float
-  | IntSingle of font-selection-int-field * int
-  | Style of font-style
-  | And of font-selection-cond list
+type fss-font-selection-cond =
+  | LengthSingle of fss-font-selection-length-field * length
+  | FloatSingle of fss-font-selection-float-field * float
+  | IntSingle of fss-font-selection-int-field * int
+  | Style of fss-font-style
+  | And of fss-font-selection-cond list
 %  | Charset
 %  | Lang
 
-module FontSelectionCond : sig
+module FssFontSelectionCond : sig
 
   val of-simple-config :
     (| font-size : length option ;
       width : int ;
       weight : float ;
       slant : int;
-      style : font-style;
+      style : fss-font-style;
 %      charset : int;
 %      lang : string;
-    |) -> font-selection-cond
+    |) -> fss-font-selection-cond
 
 end = struct
 

@@ -1,13 +1,13 @@
 % https://glyphsapp.com/tutorials/naming
-type font-style = (|
+type fss-font-style = (|
   width : string;
   weight : string;
   style : string;
 |)
 
-module FontStyle : sig
-  val parse : string -> font-style
-  val to-string : font-style -> string
+module FssFontStyle : sig
+  val parse : string -> fss-font-style
+  val to-string : fss-font-style -> string
 end = struct
   let parse s = match s with
     | `Regular` -> (| width = ` `; weight = ` `; style = ` ` |)

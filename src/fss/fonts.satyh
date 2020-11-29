@@ -5,12 +5,12 @@
 @import: font/script
 @import: font/set
 
-module Fonts : sig
+module FssFonts : sig
 
-  val default-font-axes : font-axes
-  val default-font-set : font-set
-  val default-font-set-ja : font-set
-  val default-font-set-la : font-set
+  val default-font-axes : fss-font-axes
+  val default-font-set : fss-font-set
+  val default-font-set-ja : fss-font-set
+  val default-font-set-la : fss-font-set
 
 end = struct
 
@@ -32,81 +32,81 @@ end = struct
       |) ;
     |)
 
-  let default-font-combination-ja-r : font-combination =
-  [ font-default-Jpan FontScript.hani `ipaexm` ;
-    font-default-Jpan FontScript.kana `ipaexm` ;
+  let default-font-combination-ja-r : fss-font-combination =
+  [ font-default-Jpan FssFontScript.hani `ipaexm` ;
+    font-default-Jpan FssFontScript.kana `ipaexm` ;
   ]
-  let default-font-combination-la-r : font-combination =
-  [ font-default-Latn FontScript.latn `fonts-junicode:Junicode` ;
-    font-default-Latn FontScript.other `fonts-junicode:Junicode` ;
+  let default-font-combination-la-r : fss-font-combination =
+  [ font-default-Latn FssFontScript.latn `fonts-junicode:Junicode` ;
+    font-default-Latn FssFontScript.other `fonts-junicode:Junicode` ;
   ]
-  let default-font-axes : font-axes =
+  let default-font-axes : fss-font-axes =
     (| width = 100 ;
       weight = 80. ;
       slant = 0 ;
-      style = FontStyle.parse `Regular` ;
+      style = FssFontStyle.parse `Regular` ;
     |)
-  let default-font-cond-r : font-selection-cond =
-    FontSelectionCond.of-simple-config
+  let default-font-cond-r : fss-font-selection-cond =
+    FssFontSelectionCond.of-simple-config
       (| font-size = None ;
         width = 100 ;
         weight = 80. ;
         slant = 0 ;
-        style = FontStyle.parse `Regular` ;
+        style = FssFontStyle.parse `Regular` ;
       |)
 
-  let default-font-combination-ja-i : font-combination =
-  [ font-default-Jpan FontScript.hani `ipaexg` ;
-    font-default-Jpan FontScript.kana `ipaexg` ;
+  let default-font-combination-ja-i : fss-font-combination =
+  [ font-default-Jpan FssFontScript.hani `ipaexg` ;
+    font-default-Jpan FssFontScript.kana `ipaexg` ;
   ]
-  let default-font-combination-la-i : font-combination =
-  [ font-default-Latn FontScript.latn `fonts-junicode:Junicode-Italic` ;
-    font-default-Latn FontScript.other `fonts-junicode:Junicode-Italic` ;
+  let default-font-combination-la-i : fss-font-combination =
+  [ font-default-Latn FssFontScript.latn `fonts-junicode:Junicode-Italic` ;
+    font-default-Latn FssFontScript.other `fonts-junicode:Junicode-Italic` ;
   ]
-  let default-font-cond-i : font-selection-cond =
-    FontSelectionCond.of-simple-config
+  let default-font-cond-i : fss-font-selection-cond =
+    FssFontSelectionCond.of-simple-config
       (| font-size = None ;
         width = 100 ;
         weight = 80. ;
         slant = 100 ;
-        style = FontStyle.parse `Italic` ;
+        style = FssFontStyle.parse `Italic` ;
       |)
 
-  let default-font-combination-ja-b : font-combination =
-  [ font-default-Jpan FontScript.hani `ipaexg` ;
-    font-default-Jpan FontScript.kana `ipaexg` ;
+  let default-font-combination-ja-b : fss-font-combination =
+  [ font-default-Jpan FssFontScript.hani `ipaexg` ;
+    font-default-Jpan FssFontScript.kana `ipaexg` ;
   ]
-  let default-font-combination-la-b : font-combination =
-  [ font-default-Latn FontScript.latn `fonts-junicode:Junicode-Bold` ;
-    font-default-Latn FontScript.other `fonts-junicode:Junicode-Bold` ;
+  let default-font-combination-la-b : fss-font-combination =
+  [ font-default-Latn FssFontScript.latn `fonts-junicode:Junicode-Bold` ;
+    font-default-Latn FssFontScript.other `fonts-junicode:Junicode-Bold` ;
   ]
-  let default-font-cond-b : font-selection-cond =
-    FontSelectionCond.of-simple-config
+  let default-font-cond-b : fss-font-selection-cond =
+    FssFontSelectionCond.of-simple-config
       (| font-size = None ;
         width = 100 ;
         weight = 180. ;
         slant = 0 ;
-        style = FontStyle.parse `Bold` ;
+        style = FssFontStyle.parse `Bold` ;
       |)
 
-  let default-font-combination-ja-bi : font-combination =
-  [ font-default-Jpan FontScript.hani `ipaexg` ;
-    font-default-Jpan FontScript.kana `ipaexg` ;
+  let default-font-combination-ja-bi : fss-font-combination =
+  [ font-default-Jpan FssFontScript.hani `ipaexg` ;
+    font-default-Jpan FssFontScript.kana `ipaexg` ;
   ]
-  let default-font-combination-la-bi : font-combination =
-  [ font-default-Latn FontScript.latn `fonts-junicode:Junicode-BoldItalic` ;
-    font-default-Latn FontScript.other `fonts-junicode:Junicode-BoldItalic` ;
+  let default-font-combination-la-bi : fss-font-combination =
+  [ font-default-Latn FssFontScript.latn `fonts-junicode:Junicode-BoldItalic` ;
+    font-default-Latn FssFontScript.other `fonts-junicode:Junicode-BoldItalic` ;
   ]
-  let default-font-cond-bi : font-selection-cond =
-    FontSelectionCond.of-simple-config
+  let default-font-cond-bi : fss-font-selection-cond =
+    FssFontSelectionCond.of-simple-config
       (| font-size = None ;
         width = 100 ;
         weight = 180. ;
         slant = 100 ;
-        style = FontStyle.parse `Bold Italic` ;
+        style = FssFontStyle.parse `Bold Italic` ;
       |)
 
-  let default-font-set-ja : font-set =
+  let default-font-set-ja : fss-font-set =
     (| default-font = default-font-combination-ja-r ;
       conditional-fonts =
         [ (default-font-cond-r, default-font-combination-ja-r) ;
@@ -115,11 +115,11 @@ end = struct
           (default-font-cond-bi, default-font-combination-ja-bi) ;
         ];
       covered-area = Set.of-list [
-          FontScript.hani ;
-          FontScript.kana ;
+          FssFontScript.hani ;
+          FssFontScript.kana ;
         ];
     |)
-  let default-font-set-la : font-set =
+  let default-font-set-la : fss-font-set =
     (| default-font = default-font-combination-la-r ;
       conditional-fonts =
         [ (default-font-cond-r, default-font-combination-la-r) ;
@@ -128,13 +128,13 @@ end = struct
           (default-font-cond-bi, default-font-combination-la-bi) ;
         ];
       covered-area = Set.of-list [
-          FontScript.latn ;
-          FontScript.other ;
+          FssFontScript.latn ;
+          FssFontScript.other ;
         ];
     |)
 
-  let default-font-set : font-set =
-    FontSet.combine
+  let default-font-set : fss-font-set =
+    FssFontSet.combine
       default-font-set-la
       default-font-set-ja
 

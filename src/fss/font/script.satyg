@@ -5,7 +5,7 @@
 
 @import: font
 
-module FontScript : sig
+module FssFontScript : sig
 
   type t
 

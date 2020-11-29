@@ -1,36 +1,36 @@
 @import: axes
 @import: set
 
-type extended-context =
+type fss-extended-context =
   (| context : context ;
-     font-set : font-set ;
-     font-axes : font-axes ;
+     font-set : fss-font-set ;
+     font-axes : fss-font-axes ;
   |)
 
-type extended-context-non-standard =
-  (| font-set : font-set ;
-     font-axes : font-axes ;
+type fss-extended-context-non-standard =
+  (| font-set : fss-font-set ;
+     font-axes : fss-font-axes ;
   |)
 
-module ExtendedContext : sig
+module FssExtendedContext : sig
 
-  val get-non-standard-context : extended-context -> extended-context-non-standard
-  val from-non-standard-context : extended-context-non-standard -> context -> extended-context
+  val get-non-standard-context : fss-extended-context -> fss-extended-context-non-standard
+  val from-non-standard-context : fss-extended-context-non-standard -> context -> fss-extended-context
 
-  val get-context : extended-context -> context
-  val set-context : context -> extended-context -> extended-context
+  val get-context : fss-extended-context -> context
+  val set-context : context -> fss-extended-context -> fss-extended-context
 
-  val get-font-set : extended-context -> font-set
-  val set-font-set : font-set -> extended-context -> extended-context
+  val get-font-set : fss-extended-context -> fss-font-set
+  val set-font-set : fss-font-set -> fss-extended-context -> fss-extended-context
 
-  val get-font-axes : extended-context -> font-axes
-  val set-font-axes : font-axes -> extended-context -> extended-context
+  val get-font-axes : fss-extended-context -> fss-font-axes
+  val set-font-axes : fss-font-axes -> fss-extended-context -> fss-extended-context
 
-  val get-font-size : extended-context -> length
-  val set-font-size : length -> extended-context -> extended-context
+  val get-font-size : fss-extended-context -> length
+  val set-font-size : length -> fss-extended-context -> fss-extended-context
 
-  val to-string : extended-context -> string
-  val to-string-for-font-selection : extended-context -> string
+  val to-string : fss-extended-context -> string
+  val to-string-for-font-selection : fss-extended-context -> string
 
 end = struct
 
@@ -66,13 +66,13 @@ end = struct
 
   let to-string ectx =
     `{size=` ^ show-float (get-font-size ectx /' 1pt)
-    ^ `;` ^ `font-axes=` ^ FontAxes.to-string (get-font-axes ectx)
-    ^ `;` ^ `font-set=` ^ FontSet.to-string (get-font-set ectx)
+    ^ `;` ^ `font-axes=` ^ FssFontAxes.to-string (get-font-axes ectx)
+    ^ `;` ^ `font-set=` ^ FssFontSet.to-string (get-font-set ectx)
     ^ `}`
 
   let to-string-for-font-selection ectx =
     `{size=` ^ show-float (get-font-size ectx /' 1pt)
-    ^ `;` ^ `font-axes=` ^ FontAxes.to-string (get-font-axes ectx)
+    ^ `;` ^ `font-axes=` ^ FssFontAxes.to-string (get-font-axes ectx)
     ^ `}`
 
 

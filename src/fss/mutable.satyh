@@ -7,17 +7,17 @@
 
 module FssMutableInternal : sig
 
-  val with-font-style : string ?-> context -> (extended-context -> extended-context) list -> (extended-context -> 'a) -> 'a
+  val with-font-style : string ?-> context -> (fss-extended-context -> fss-extended-context) list -> (fss-extended-context -> 'a) -> 'a
 
-  val get-font-set : context -> font-set
+  val get-font-set : context -> fss-font-set
 
   val set-debug-level : int -> unit
 
 end = struct
 
   let-mutable current-non-standard-context <-
-    (| font-set = Fonts.default-font-set ;
-       font-axes = Fonts.default-font-axes ;
+    (| font-set = FssFonts.default-font-set ;
+       font-axes = FssFonts.default-font-axes ;
     |)
 
   let-mutable current-debug-level <- 0
@@ -30,13 +30,13 @@ end = struct
     else ()
 
   let get-current-extended-context ctx =
-    ExtendedContext.from-non-standard-context
+    FssExtendedContext.from-non-standard-context
       !current-non-standard-context
       ctx
 
   let get-font-set ctx =
     get-current-extended-context ctx
-    |> ExtendedContext.get-font-set
+    |> FssExtendedContext.get-font-set
 
   let with-font-style ?:context (previous-ctx) ss f =
     let context = Option.unwrap-or `with-style` context in
@@ -47,14 +47,14 @@ end = struct
     let () = debug-message
         1
         context
-        (ExtendedContext.to-string previous-ectx
+        (FssExtendedContext.to-string previous-ectx
         ^ #` -> `#
-        ^ ExtendedContext.to-string ectx) in
+        ^ FssExtendedContext.to-string ectx) in
     let () = current-non-standard-context <-
-        ExtendedContext.get-non-standard-context ectx in
+        FssExtendedContext.get-non-standard-context ectx in
     let result = f ectx in
     let () = current-non-standard-context <-
-        ExtendedContext.get-non-standard-context previous-ectx in
+        FssExtendedContext.get-non-standard-context previous-ectx in
     result
 
 end

@@ -25,14 +25,14 @@ let header-paragraph =
 % Register style rules
 let () =
   Sss.register-style-rule main-text 
-    Style.(concat [
+    FssStyle.(concat [
         font-set bodoni-star-font-set;
         font-size 16pt;
       ])
 let () =
   Sss.register-style-rule
     (Sss.string-to-style-class `header:paragraph`)
-    Style.(bold)
+    FssStyle.(bold)
 
 in
 
@@ -78,7 +78,7 @@ document (|
       let () =
         Sss.register-style-rule
           main-text 
-          Style.(concat [
+          FssStyle.(concat [
               font-set bodoni-star-font-set;
               font-size 16pt;
             ])
@@ -92,7 +92,7 @@ document (|
       let () =
         Sss.register-style-rule
           (Sss.string-to-style-class `main-text`)
-          Style.(concat [
+          FssStyle.(concat [
               font-set bodoni-star-font-set;
               font-size 16pt;
             ])

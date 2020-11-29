@@ -3,7 +3,7 @@
 
 type style = extended-context -> extended-context
 
-module Style : sig
+module FssStyle : sig
 
   val concat : style list -> style
 

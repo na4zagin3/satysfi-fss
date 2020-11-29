@@ -11,9 +11,9 @@
 @import: set
 
 
-module FontSelection : sig
+module FssFontSelection : sig
 
-  val find-optimal-font : extended-context -> font-combination
+  val find-optimal-font : fss-extended-context -> fss-font-combination
 
   val set-debug-level : int -> unit
 
@@ -99,7 +99,7 @@ end = struct
     else ()
 
   let debug-font-combination level context font-comb =
-    log-message level context (FontCombination.to-string font-comb)
+    log-message level context (FssFontCombination.to-string font-comb)
 
   let info-font-combination context font-comb =
     debug-font-combination 0 context font-comb
@@ -145,8 +145,8 @@ end = struct
     | (_, _) -> Score.unit-disj
 
   let-rec font-selection-score cond ectx =
-    let ctx = ExtendedContext.get-context ectx in
-    let fa = ExtendedContext.get-font-axes ectx in
+    let ctx = FssExtendedContext.get-context ectx in
+    let fa = FssExtendedContext.get-font-axes ectx in
     match cond with
     | And cs ->
       List.map (fun cond -> font-selection-score cond ectx) cs
@@ -218,7 +218,7 @@ end = struct
       match fps with
       | [] -> List.reverse acc
       | (score, fp) :: fps ->
-        if FontScript.set-mem fp#script set
+        if FssFontScript.set-mem fp#script set
         then sub set acc fps
         else
           let set = Set.insert fp#script set in
@@ -227,7 +227,7 @@ end = struct
     sub Set.empty []
 
   let find-optimal-font ectx =
-    let font-set = ExtendedContext.get-font-set ectx in
+    let font-set = FssExtendedContext.get-font-set ectx in
     let warn-fuzzy-match (score, fp) =
       let () =
         if Score.(score == unit-conj)
@@ -237,12 +237,12 @@ end = struct
             (-1)
             `find-optimal-font`
             (`Not perfect match: `#
-            ^ FontCombination.font-combination-pair-to-string fp
+            ^ FssFontCombination.font-combination-pair-to-string fp
             ^ #` (score `# ^ show-float score ^ `)`
             ^ #`: fontset `#
-            ^ FontSet.to-string font-set
+            ^ FssFontSet.to-string font-set
             ^ #` axes `#
-            ^ ExtendedContext.to-string-for-font-selection ectx
+            ^ FssExtendedContext.to-string-for-font-selection ectx
             )
         
       in

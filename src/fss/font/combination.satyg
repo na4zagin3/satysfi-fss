@@ -1,23 +1,23 @@
 @import: font
 @import: script
 
-type font-combination-pair =
-  (| script : FontScript.t ;
-     font : font;
+type fss-font-combination-pair =
+  (| script : FssFontScript.t ;
+     font : fss-font;
   |)
 
-type font-combination =
-  font-combination-pair list
+type fss-font-combination =
+  fss-font-combination-pair list
 
-module FontCombination : sig
+module FssFontCombination : sig
 
-  val to-string : font-combination -> string
-  val font-combination-pair-to-string : font-combination-pair -> string
+  val to-string : fss-font-combination -> string
+  val font-combination-pair-to-string : fss-font-combination-pair -> string
 
 end = struct
 
   let font-combination-pair-to-string f =
-    FontScript.to-string f#script ^ #` `# ^ f#font#font-name
+    FssFontScript.to-string f#script ^ #` `# ^ f#font#font-name
 
   let to-string font-comb =
     let-rec sub acc font-comb =

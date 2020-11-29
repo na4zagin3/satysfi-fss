@@ -1,9 +1,9 @@
 @import: font/axes
 @import: font/context
 
-type style = extended-context -> extended-context
+type style = fss-extended-context -> fss-extended-context
 
-module Style : sig
+module FssStyle : sig
 
   val bold : style
   val medium : style
@@ -14,7 +14,7 @@ module Style : sig
   val font-size : length -> style
   val with-font-size : (length -> length) -> style
 
-  val font-set : font-set -> style
+  val font-set : fss-font-set -> style
 
   val concat : style list -> style
 
@@ -24,31 +24,31 @@ end = struct
     List.fold-left (fun ectx s -> s ectx) ectx ss
 
   let bold ectx =
-    let fa = ExtendedContext.get-font-axes ectx in
-    ExtendedContext.set-font-axes
+    let fa = FssExtendedContext.get-font-axes ectx in
+    FssExtendedContext.set-font-axes
       (| fa with weight = 180. ; style = (| fa#style with weight = `Bold` |) |)
       ectx
 
   let medium ectx =
-    let fa = ExtendedContext.get-font-axes ectx in
-    ExtendedContext.set-font-axes
+    let fa = FssExtendedContext.get-font-axes ectx in
+    FssExtendedContext.set-font-axes
       (| fa with weight = 80. ; style = (| fa#style with weight = ` ` |) |)
       ectx
 
   let upright ectx =
-    let fa = ExtendedContext.get-font-axes ectx in
-    ExtendedContext.set-font-axes
+    let fa = FssExtendedContext.get-font-axes ectx in
+    FssExtendedContext.set-font-axes
       (| fa with slant = 0  ; style = (| fa#style with style = ` ` |) |)
       ectx
   let italic ectx =
-    let fa = ExtendedContext.get-font-axes ectx in
-    ExtendedContext.set-font-axes
+    let fa = FssExtendedContext.get-font-axes ectx in
+    FssExtendedContext.set-font-axes
       (| fa with slant = 100 ; style = (| fa#style with style = `Italic` |) |)
       ectx
 
   let with-font-size f ectx =
     let ctx =
-      ExtendedContext.get-context ectx
+      FssExtendedContext.get-context ectx
     in
     let font-size =
       get-font-size ctx
@@ -57,7 +57,7 @@ end = struct
     let ctx =
       set-font-size font-size ctx
     in
-    ExtendedContext.set-context ctx ectx
+    FssExtendedContext.set-context ctx ectx
 
   let font-size s =
     let f _ = s in
@@ -65,14 +65,14 @@ end = struct
 
 
   let font-set fs ectx =
-    ExtendedContext.set-font-set fs ectx
+    FssExtendedContext.set-font-set fs ectx
 
 end
 
-let bold = Style.bold
-let medium = Style.medium
-let upright = Style.upright
-let italic = Style.italic
-let font-size = Style.font-size
-let with-font-size = Style.with-font-size
-let font-set = Style.font-set
+let bold = FssStyle.bold
+let medium = FssStyle.medium
+let upright = FssStyle.upright
+let italic = FssStyle.italic
+let font-size = FssStyle.font-size
+let with-font-size = FssStyle.with-font-size
+let font-set = FssStyle.font-set

@@ -5,16 +5,16 @@
 
 % val bodoni-star-font-set : font-set
 
-let bodoni-star-font-set : font-set =
+let bodoni-star-font-set : fss-font-set =
   let latin-font-pairs name =
-    [(| script = FontScript.latn ;
+    [(| script = FssFontScript.latn ;
         font = (|
           font-name = name ;
           ratio = 1.0 ;
           rising = 0.0 ;
         |) ;
     |);
-    (| script = FontScript.other ;
+    (| script = FssFontScript.other ;
         font = (|
           font-name = name ;
           ratio = 1.0 ;
@@ -26,17 +26,17 @@ let bodoni-star-font-set : font-set =
 
   let bodoni-star-font-comb name conf =
     let cond =
-      FontSelectionCond.of-simple-config conf
+      FssFontSelectionCond.of-simple-config conf
     in
     let pairs =
-      [(| script = FontScript.latn ;
+      [(| script = FssFontScript.latn ;
           font = (|
             font-name = name ;
             ratio = 1.0 ;
             rising = 0.0 ;
           |) ;
       |);
-      (| script = FontScript.other ;
+      (| script = FssFontScript.other ;
           font = (|
             font-name = name ;
             ratio = 1.0 ;
@@ -55,7 +55,7 @@ let bodoni-star-font-set : font-set =
         width = 100 ;
         weight = 200. ;
         slant = 0 ;
-        style = FontStyle.parse `Bold` ;
+        style = FssFontStyle.parse `Bold` ;
       |)
   in
   let bold-italic size-str size =
@@ -65,7 +65,7 @@ let bodoni-star-font-set : font-set =
         width = 100 ;
         weight = 200. ;
         slant = 100 ;
-        style = FontStyle.parse `Bold Italic` ;
+        style = FssFontStyle.parse `Bold Italic` ;
       |)
   in
   let book size-str size =
@@ -75,7 +75,7 @@ let bodoni-star-font-set : font-set =
         width = 100 ;
         weight = 80. ;
         slant = 0 ;
-        style = FontStyle.parse `Regular` ;
+        style = FssFontStyle.parse `Regular` ;
       |)
   in
   let book-italic size-str size =
@@ -85,7 +85,7 @@ let bodoni-star-font-set : font-set =
         width = 100 ;
         weight = 80. ;
         slant = 100 ;
-        style = FontStyle.parse `Italic` ;
+        style = FssFontStyle.parse `Italic` ;
       |)
   in
   let fatface size-str size =
@@ -95,7 +95,7 @@ let bodoni-star-font-set : font-set =
         width = 100 ;
         weight =210. ;
         slant = 0 ;
-        style = FontStyle.parse `Regular` ;
+        style = FssFontStyle.parse `Regular` ;
       |)
   in
   let fatface-italic size-str size =
@@ -105,7 +105,7 @@ let bodoni-star-font-set : font-set =
         width = 100 ;
         weight =210. ;
         slant = 100 ;
-        style = FontStyle.parse `Italic` ;
+        style = FssFontStyle.parse `Italic` ;
       |)
   in
   let medium size-str size =
@@ -115,7 +115,7 @@ let bodoni-star-font-set : font-set =
         width = 100 ;
         weight =100. ;
         slant = 0 ;
-        style = FontStyle.parse `Regular` ;
+        style = FssFontStyle.parse `Regular` ;
       |)
   in
   let medium-italic size-str size =
@@ -125,7 +125,7 @@ let bodoni-star-font-set : font-set =
         width = 100 ;
         weight =100. ;
         slant = 100 ;
-        style = FontStyle.parse `Italic` ;
+        style = FssFontStyle.parse `Italic` ;
       |)
   in
   let bodoni-star size-str size =
@@ -154,7 +154,7 @@ let bodoni-star-font-set : font-set =
       ]
       |> List.concat;
     covered-area = Set.of-list [
-        FontScript.latn ;
-        FontScript.other ;
+        FssFontScript.latn ;
+        FssFontScript.other ;
       ];
   |)
