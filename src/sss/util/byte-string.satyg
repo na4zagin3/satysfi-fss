@@ -3,7 +3,7 @@
 @require: base/ord
 @require: base/option-ext
 
-module ByteString : sig
+module SssByteString : sig
 
   type t
 

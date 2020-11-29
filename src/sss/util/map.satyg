@@ -5,7 +5,7 @@
 @require: base/string
 
 % TODO Implement with a tree
-module Map : sig
+module SssMap : sig
 
   type 'k 'v t
 

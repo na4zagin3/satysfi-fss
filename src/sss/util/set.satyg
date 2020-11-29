@@ -4,7 +4,7 @@
 
 @import: map
 
-module TreeSet : sig
+module SssSet : sig
 
   type 'k t
 
@@ -17,18 +17,18 @@ module TreeSet : sig
 
 end = struct
 
-  type 'k t = 'k unit Map.t
+  type 'k t = 'k unit SssMap.t
 
   let empty ord =
-    Map.empty ord
+    SssMap.empty ord
 
   let insert k s =
-    Map.insert-override k () s
+    SssMap.insert-override k () s
 
   let remove k s =
-    Map.remove k s
+    SssMap.remove k s
 
   let mem k s =
-    Map.mem k s
+    SssMap.mem k s
 
 end
