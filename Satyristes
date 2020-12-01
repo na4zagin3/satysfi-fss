@@ -2,7 +2,7 @@
 
 (library
   (name "fss")
-  (version "0.1")
+  (version "0.2.0")
   (sources
     ((packageDir "src/fss")))
   (opam "satysfi-fss.opam")
@@ -20,7 +20,7 @@
 
 (libraryDoc
   (name "fss-doc")
-  (version "0.1")
+  (version "0.2.0")
   (build
     ((satysfi "doc-fss.ja.saty" "-o" "doc-fss.ja.pdf")))
   (sources
@@ -31,7 +31,7 @@
 
 (library
   (name "sss")
-  (version "0.1")
+  (version "0.2.0")
   (sources
     ((packageDir "src/sss")))
   (opam "satysfi-sss.opam")
@@ -40,7 +40,7 @@
 
 (libraryDoc
   (name "sss-doc")
-  (version "0.1")
+  (version "0.2.0")
   (build
     ((satysfi "doc-sss.ja.saty" "-o" "doc-sss.ja.pdf")))
   (sources
@@ -52,7 +52,7 @@
 
 (library
   (name "class-nzla")
-  (version "0.1")
+  (version "0.2.0")
   (sources
     ((packageDir "src/class-nzla")))
   (opam "satysfi-class-nzla.opam")

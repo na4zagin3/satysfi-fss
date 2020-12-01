@@ -21,7 +21,7 @@ let-block ctx +display-boxes content code =
 in
 
 document (|
-  title = {satysfi-fss v0.1.0};
+  title = {satysfi-fss};
   author = {\code(`@na4zagin3`);};
   show-title = true;
   show-toc = false;
